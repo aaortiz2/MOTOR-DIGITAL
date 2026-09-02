@@ -1,0 +1,94 @@
+.login-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(255, 204, 0, 0.8), rgba(255, 204, 0, 0.95)), url('/fondo-tvs.jpg');
+  background-size: cover;
+  background-position: center;
+  font-family: 'Arial', sans-serif;
+}
+
+.login-card {
+  background-color: rgba(30, 30, 30, 0.95);
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  color: white;
+  text-align: center;
+}
+
+.brand-header h1 {
+  color: #002366; 
+  font-size: 2.2rem;
+  font-weight: bold;
+  font-style: italic;
+  margin-bottom: 20px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.brand-header span {
+  color: #E3000F; 
+}
+
+.form-title {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box; 
+}
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background-color: #002366; 
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.btn-login:hover {
+  background-color: #001540;
+}
+
+.login-footer {
+  margin-top: 25px;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.login-footer .highlight {
+  color: #E3000F; 
+  font-weight: bold;
+  font-size: 1rem;
+  font-style: italic;
+}

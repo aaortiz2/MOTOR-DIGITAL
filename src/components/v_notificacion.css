@@ -1,0 +1,256 @@
+.vn-container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  color: #2a2a28;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Header */
+.vn-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #d8d5cb;
+  padding-bottom: 20px;
+}
+
+.vn-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #030303;
+}
+
+.vn-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #000000;
+}
+
+.vn-new-button {
+  background: #2d7d46;
+  color: #f4f2ec;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.vn-new-button:hover {
+  background: #35934f;
+}
+
+/* Form (panel oscuro, contraste con la tabla clara) */
+.vn-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #1e2024;
+  border: 1px solid #33363e;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.vn-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 220px;
+}
+
+.vn-field-short {
+  flex: 1 1 160px;
+}
+
+.vn-field-wide {
+  flex: 1 1 100%;
+}
+
+.vn-field label {
+  font-size: 12px;
+  color: #9a978f;
+  font-weight: 600;
+}
+
+.vn-field input,
+.vn-field select,
+.vn-field textarea {
+  background: #14161a;
+  border: 1px solid #3a3d46;
+  border-radius: 6px;
+  padding: 9px 11px;
+  color: #f4f2ec;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.vn-field input:disabled {
+  color: #7c7a73;
+  cursor: not-allowed;
+}
+
+.vn-field input:focus,
+.vn-field select:focus,
+.vn-field textarea:focus {
+  outline: none;
+  border-color: #2d7d46;
+}
+
+.vn-send-button {
+  align-self: flex-end;
+  background: #d68a3b;
+  color: #1a1a1a;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.vn-send-button:hover {
+  background: #e39a4c;
+}
+
+/* Table (fondo claro para que el texto negro se vea) */
+.vn-table-wrapper {
+  background: #f4f2ec;
+  border: 1px solid #d8d5cb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vn-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.vn-table thead {
+  background: #ece8dd;
+}
+
+.vn-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #5c594f;
+  font-weight: 600;
+  border-bottom: 1px solid #d8d5cb;
+}
+
+.vn-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #e3e0d5;
+  vertical-align: top;
+}
+
+.vn-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vn-table tbody tr:hover {
+  background: #dffadb;
+}
+
+.vn-client-cell {
+  font-weight: 600;
+  color: #000000;
+}
+
+.vn-number-cell,
+.vn-date-cell {
+  color: #000000;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.vn-message-cell {
+  color: #000000;
+  max-width: 320px;
+}
+
+.vn-empty {
+  text-align: center;
+  color: #7c7a73;
+  padding: 28px 16px;
+}
+
+/* Channel tag */
+.vn-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vn-channel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.vn-channel-whatsapp {
+  background: rgba(12, 129, 41, 0.14);
+  color: #0c8129;
+}
+
+.vn-channel-whatsapp .vn-channel-dot {
+  background: #0c8129;
+}
+
+.vn-channel-sms {
+  background: rgba(214, 138, 59, 0.18);
+  color: #b56a2c;
+}
+
+.vn-channel-sms .vn-channel-dot {
+  background: #b56a2c;
+}
+
+/* Delete button */
+.vn-delete-button {
+  background: transparent;
+  border: 1px solid #cfccc0;
+  color: #ec0707;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.vn-delete-button:hover {
+  border-color: #b04a3f;
+  background: #fbe4e0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .vn-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .vn-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .vn-table {
+    min-width: 640px;
+  }
+}

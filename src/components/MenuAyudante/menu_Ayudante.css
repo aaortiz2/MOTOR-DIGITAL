@@ -1,0 +1,206 @@
+/* Variables Taller / Área de Ayudante y Recepción */
+:root {
+  --cyan-ayudante: #0284c7;
+  --cyan-hover: #0369a1;
+  --green-accent: #10b981;
+  --bg-dark-ayudante: #0f172a;
+  --card-bg-ayudante: rgba(255, 255, 255, 0.95);
+  --text-dark: #0f172a;
+  --text-muted: #475569;
+}
+
+/* Contenedor Principal con fondo TVS */
+.menu-ayudante-container {
+  padding: 30px 20px;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.80)), 
+              url('/fondo_tvs.jpg') center/cover no-repeat fixed;
+}
+
+/* Encabezado Ayudante */
+.menu-ayudante-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  background: rgba(15, 23, 42, 0.88);
+  padding: 22px 28px;
+  border-radius: 12px;
+  border-left: 6px solid var(--cyan-ayudante);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.ayudante-badge {
+  display: inline-block;
+  background-color: var(--cyan-ayudante);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.menu-ayudante-title {
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+.menu-ayudante-title span {
+  color: var(--cyan-ayudante);
+}
+
+.menu-ayudante-text {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Botón Salir */
+.btn-logout-ayudante {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.btn-logout-ayudante:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+}
+
+/* Grilla Centrada para Ayudantes (2 Tarjetas Grandes) */
+.menu-ayudante-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Tarjetas de Atención */
+.ayudante-card {
+  background: var(--card-bg-ayudante);
+  border-radius: 14px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  border-top: 5px solid var(--cyan-ayudante);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-height: 220px;
+}
+
+.ayudante-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 32px rgba(2, 132, 199, 0.3);
+  background: #ffffff;
+}
+
+/* Barra superior de la tarjeta */
+.card-top-bar-ayudante {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.card-icon-ayudante {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: var(--cyan-ayudante);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 3px solid var(--green-accent);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.ayudante-card:hover .card-icon-ayudante {
+  background: var(--cyan-ayudante);
+  color: #ffffff;
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.card-icon-ayudante svg {
+  width: 30px;
+  height: 30px;
+}
+
+.card-tag-ayudante {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* Títulos y Descripciones */
+.card-title-ayudante {
+  color: var(--text-dark);
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.card-desc-ayudante {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+  font-weight: 500;
+}
+
+/* Barra inferior estilo botón */
+.card-action-bar-ayudante {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  color: var(--cyan-ayudante);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.ayudante-card:hover .card-action-bar-ayudante {
+  color: var(--cyan-hover);
+}
+
+.card-arrow-ayudante {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.ayudante-card:hover .card-arrow-ayudante {
+  transform: translateX(6px);
+}

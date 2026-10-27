@@ -1,0 +1,130 @@
+/*
+  REGISTRO DE MECÁNICO
+  Desarrollo: Lizet
+  Fecha: 17/09/2026
+  Descripción: Estilos visuales de la ventana de registro.
+*/
+
+
+/* Inicio: estructura principal de la ventana de registro */
+
+.registro-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+      to bottom,
+      rgba(255, 204, 0, 0.8),
+      rgba(255, 204, 0, 0.95)
+    ),
+    url('/fondo-tvs.jpg');
+  background-size: cover;
+  background-position: center;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Tarjeta principal */
+
+.registro-card {
+  background-color: rgba(30, 30, 30, 0.95);
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.registro-card .brand-header {
+  text-align: center;
+}
+
+.registro-card .brand-header h1 {
+  color: #002366;
+  font-size: 2.2rem;
+  font-weight: bold;
+  font-style: italic;
+  margin-bottom: 25px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.registro-card .brand-header span {
+  color: #E3000F;
+}
+
+.registro-title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+/* Estilos de los campos del formulario */
+
+.registro-input-group {
+  margin-bottom: 18px;
+}
+
+.registro-input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.registro-input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.registro-input-group input[type="file"] {
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Botón principal de registro */
+
+.btn-registro {
+  width: 100%;
+  padding: 14px;
+  background-color: #002366;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-registro:hover {
+  background-color: #001540;
+}
+
+/* Botón para regresar al inicio */
+
+.btn-volver {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-volver:hover {
+  background-color: #333;
+}

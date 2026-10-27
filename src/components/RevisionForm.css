@@ -1,0 +1,83 @@
+.contenedor-revision {
+  position: fixed;   
+  top: 0;
+  left: 0;
+  width: 100vw;      
+  height: 100vh;     
+  
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)), url('/fondo-moto.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;  
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.contenedor-revision h2 {
+  color: #7a96c4;
+  margin-bottom: 20px;
+  font-size: 1.8rem;    
+}
+
+.formulario-revision {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4)), url('/fondo-form.jpg');
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+}
+
+.grupo-entrada {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.grupo-entrada label {
+  font-weight: bold;
+  color: #9baac0;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.grupo-entrada input,
+.grupo-entrada textarea,
+.grupo-entrada select {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.grupo-entrada input:focus,
+.grupo-entrada textarea:focus,
+.grupo-entrada select:focus {
+  border-color: #3b82f6;
+}
+
+.boton-guardar {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.boton-guardar:hover {
+  background-color: #1d4ed8;
+}

@@ -45,7 +45,11 @@
   background: #35934f;
 }
 
+<<<<<<< HEAD
 /* Form */
+=======
+/* Form (panel oscuro, contraste con la tabla clara) */
+>>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
 .vn-form {
   display: flex;
   flex-wrap: wrap;
@@ -120,7 +124,11 @@
   background: #e39a4c;
 }
 
+<<<<<<< HEAD
 /* Table */
+=======
+/* Table (fondo claro para que el texto negro se vea) */
+>>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
 .vn-table-wrapper {
   background: #f4f2ec;
   border: 1px solid #d8d5cb;
@@ -253,4 +261,8 @@
   .vn-table {
     min-width: 640px;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01

@@ -1,0 +1,194 @@
+/* ==========================================
+   ESTRUCTURA GENERAL DE LA PÁGINA
+   ========================================== */
+.control-container {
+  min-height: 100vh;
+  background-color: #0f172a;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==========================================
+   HEADER SUPERIOR (Igual al de Cotizaciones)
+   ========================================== */
+.control-header {
+  width: 100%;
+  max-width: 1100px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 25px;
+}
+
+.header-brand h1 {
+  color: #fbbf24;
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+.header-brand p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Badge del Administrador */
+.trabajador-badge {
+  background-color: rgba(51, 65, 85, 0.6);
+  border: 1px solid #475569;
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge-icon {
+  font-size: 1.5rem;
+}
+
+.badge-rol {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.badge-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Botón para volver al menú */
+.btn-volver-menu {
+  background-color: transparent;
+  border: 1px solid #475569;
+  color: #f8fafc;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-volver-menu:hover {
+  background-color: #334155;
+}
+
+/* ==========================================
+   TARJETA PRINCIPAL CON LA TABLA
+   ========================================== */
+.control-card {
+  width: 100%;
+  max-width: 1100px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card-title-bar {
+  border-bottom: 1px solid #334155;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.card-title-bar h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #f1f5f9;
+}
+
+/* ==========================================
+   ESTILOS DE LA TABLA
+   ========================================== */
+.tabla-reparaciones {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-reparaciones th, 
+.tabla-reparaciones td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.tabla-reparaciones th {
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.tabla-reparaciones tr:hover {
+  background-color: rgba(51, 65, 85, 0.2);
+}
+
+.placa-highlight {
+  color: #fbbf24;
+}
+
+.tabla-vacia {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 30px;
+}
+
+/* ==========================================
+   SELECTORES (Mecánico y Estado)
+   ========================================== */
+.select-asignar, 
+.select-estado {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #475569;
+  background-color: #0f172a;
+  color: #f8fafc;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.select-asignar:focus, 
+.select-estado:focus {
+  border-color: #fbbf24;
+}
+
+/* Colores dinámicos según el estado seleccionado */
+.select-estado.estado-pendiente { color: #f87171; border-color: #f87171; }
+.select-estado.estado-en-proceso { color: #fbbf24; border-color: #fbbf24; }
+.select-estado.estado-completado { color: #22c55e; border-color: #22c55e; }
+
+/* Mensajes de carga y error */
+.mensaje-estado, .mensaje-error {
+  text-align: center;
+  padding: 40px;
+  font-size: 1rem;
+}
+
+.mensaje-estado { color: #94a3b8; }
+.mensaje-error { color: #f87171; }

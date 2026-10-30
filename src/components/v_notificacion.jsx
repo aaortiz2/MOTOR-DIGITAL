@@ -1,27 +1,13 @@
-<<<<<<< HEAD
 import { useState } from 'react';
 import './v_notificacion.css';
 
+// Lista de clientes simulada (se conectará a tu tabla "Cliente" en Postgres)
 const clientes = [
   { id: 1, nombre: 'Juan Pérez', celular: '+591 700 12345' },
   { id: 2, nombre: 'Marisol Rojas', celular: '+591 700 98765' },
 ];
 
-// Nota que el nombre ahora empieza con Mayúscula (VNotificacion)
 export default function VNotificacion() {
-=======
-import { useState } from 'react'
-import './v_notificacion.css'
-
-// Placeholder: esto vendrá de tu tabla CLIENTE (id_Cliente, Nombre, Apellido, Celular)
-// cuando conectes el backend. Por ahora simula esa lista.
-const clientes = [
-  { id: 1, nombre: 'Juan Pérez', celular: '+591 700 12345' },
-  { id: 2, nombre: 'Marisol Rojas', celular: '+591 700 98765' },
-]
-
-function v_notificacion() {
->>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
   const [notificaciones, setNotificaciones] = useState([
     {
       id: 1,
@@ -41,21 +27,17 @@ function v_notificacion() {
       mensaje: 'Recordatorio: revisión programada mañana.',
       fecha: '2026-09-11 09:05',
     },
-<<<<<<< HEAD
   ]);
-=======
-  ])
->>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
 
   const [form, setForm] = useState({
     id_cliente: '',
     canal: 'whatsapp',
     mensaje: '',
-<<<<<<< HEAD
   });
 
   const [mostrarForm, setMostrarForm] = useState(false);
 
+  // Buscar datos del cliente seleccionado para autocompletar su celular
   const clienteSeleccionado = clientes.find(
     (c) => c.id === Number(form.id_cliente)
   );
@@ -71,27 +53,6 @@ function v_notificacion() {
 
     const ahora = new Date();
     const fecha = ahora.toISOString().slice(0, 16).replace('T', ' ');
-=======
-  })
-
-  const [mostrarForm, setMostrarForm] = useState(false)
-
-  const clienteSeleccionado = clientes.find(
-    (c) => c.id === Number(form.id_cliente)
-  )
-
-  const manejarCambio = (e) => {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const enviarNotificacion = (e) => {
-    e.preventDefault()
-    if (!form.id_cliente || !form.mensaje || !clienteSeleccionado) return
-
-    const ahora = new Date()
-    const fecha = ahora.toISOString().slice(0, 16).replace('T', ' ')
->>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
 
     const nueva = {
       id: Date.now(),
@@ -101,7 +62,6 @@ function v_notificacion() {
       canal: form.canal,
       mensaje: form.mensaje,
       fecha,
-<<<<<<< HEAD
     };
 
     setNotificaciones((prev) => [nueva, ...prev]);
@@ -112,18 +72,6 @@ function v_notificacion() {
   const eliminarNotificacion = (id) => {
     setNotificaciones((prev) => prev.filter((n) => n.id !== id));
   };
-=======
-    }
-
-    setNotificaciones((prev) => [nueva, ...prev])
-    setForm({ id_cliente: '', canal: 'whatsapp', mensaje: '' })
-    setMostrarForm(false)
-  }
-
-  const eliminarNotificacion = (id) => {
-    setNotificaciones((prev) => prev.filter((n) => n.id !== id))
-  }
->>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01
 
   return (
     <div className="vn-container">
@@ -239,12 +187,5 @@ function v_notificacion() {
         </table>
       </div>
     </div>
-<<<<<<< HEAD
   );
 }
-=======
-  )
-}
-
-export default v_notificacion
->>>>>>> 1ad09e49e4e5be0ae26498572734f17facc0ab01

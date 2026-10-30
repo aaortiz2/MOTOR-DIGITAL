@@ -1,11 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './menu_Mecanico.css';
 
 export default function MenuMecanico() {
   const navigate = useNavigate();
 
-  // Opciones específicas para el trabajo diario del mecánico
+  const [trabajador, setTrabajador] = useState(null); // { Nombre, Apellido, Rol }
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    const nombreUsuario = localStorage.getItem('nombreUsuario');
+
+    // Si no hay nadie logueado, de vuelta al login.
+    if (!nombreUsuario) {
+      navigate('/');
+      return;
+    }
+
+    fetch(`http://localhost:3000/api/trabajador/${nombreUsuario}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTrabajador(data.trabajador);
+        }
+      })
+      .catch((err) => {
+        console.error('No se pudo obtener los datos del trabajador:', err);
+      })
+      .finally(() => setCargando(false));
+  }, [navigate]);
+
+  const rol = (trabajador?.Rol || localStorage.getItem('rol') || '').toLowerCase();
+  const esMecanico = rol.includes('mecanico');
+
+  // Opciones específicas para el trabajo diario del mecánico.
+  // "restringida: true" marca las opciones que solo debe poder abrir un mecánico,
+  // no un recepcionista/ayudante que entre a esta misma pantalla.
   const mecanicoOptions = [
     {
       id: 'crear-cotizacion',
@@ -13,6 +43,7 @@ export default function MenuMecanico() {
       desc: 'Generar presupuesto de repuestos y mano de obra',
       path: '/cotizaciones',
       badge: 'NUEVO TRABAJO',
+      restringida: true,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -28,6 +59,7 @@ export default function MenuMecanico() {
       desc: 'Motos asignadas, estado de avance y diagnósticos',
       path: '/revision',
       badge: 'EN TALLER',
+      restringida: true,
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
@@ -40,6 +72,7 @@ export default function MenuMecanico() {
       desc: 'Turnos del día, mantenimientos y entregas pendientes',
       path: '/notificaciones',
       badge: 'HOY',
+      restringida: false, // la agenda la puede ver cualquiera que entre aquí
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -52,6 +85,17 @@ export default function MenuMecanico() {
     }
   ];
 
+  const handleCardClick = (item) => {
+    if (item.restringida && !esMecanico) return; // bloqueado para no-mecánicos
+    navigate(item.path);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('nombreUsuario');
+    localStorage.removeItem('rol');
+    navigate('/');
+  };
+
   return (
     <div className="menu-mecanico-container">
       {/* Encabezado del área técnica */}
@@ -59,38 +103,51 @@ export default function MenuMecanico() {
         <div className="mecanico-header-info">
           <span className="mecanico-badge">ESTACIÓN DE TRABAJO TÉCNICA</span>
           <h1 className="menu-mecanico-title">PANEL <span>MECÁNICO</span></h1>
-          <p className="menu-mecanico-text">Gestión de diagnósticos, repuestos y mantenimientos</p>
+          <p className="menu-mecanico-text">
+            {cargando
+              ? 'Cargando datos del trabajador...'
+              : trabajador
+                ? `Bienvenido, ${trabajador.Nombre} ${trabajador.Apellido} — ${esMecanico ? 'Mecánico' : 'Recepción'}`
+                : 'Gestión de diagnósticos, repuestos y mantenimientos'}
+          </p>
         </div>
-        <button className="btn-logout-mecanico" onClick={() => navigate('/')}>
+        <button className="btn-logout-mecanico" onClick={handleLogout}>
           SALIR
         </button>
       </header>
 
       {/* Rejilla de acceso directo para el mecánico */}
       <main className="menu-mecanico-grid">
-        {mecanicoOptions.map((item) => (
-          <div
-            key={item.id}
-            className="mecanico-card"
-            onClick={() => navigate(item.path)}
-          >
-            <div className="card-top-bar">
-              <div className="card-icon-mecanico">{item.icon}</div>
-              <span className="card-tag">{item.badge}</span>
-            </div>
+        {mecanicoOptions.map((item) => {
+          const bloqueada = item.restringida && !esMecanico;
+          return (
+            <div
+              key={item.id}
+              className={`mecanico-card${bloqueada ? ' mecanico-card-restringida' : ''}`}
+              onClick={() => handleCardClick(item)}
+              aria-disabled={bloqueada}
+            >
+              <div className="card-top-bar">
+                <div className="card-icon-mecanico">{item.icon}</div>
+                <span className="card-tag">{bloqueada ? 'RESTRINGIDO' : item.badge}</span>
+              </div>
 
-            <div className="card-content">
-              <h3 className="card-title">{item.title}</h3>
-              <p className="card-desc">{item.desc}</p>
-            </div>
+              <div className="card-content">
+                <h3 className="card-title">{item.title}</h3>
+                <p className="card-desc">
+                  {bloqueada ? 'Disponible solo para el rol de mecánico.' : item.desc}
+                </p>
+              </div>
 
-            <div className="card-action-bar">
-              <span>ABRIR PANEL</span>
-              <span className="card-arrow">&rarr;</span>
+              <div className="card-action-bar">
+                <span>{bloqueada ? 'SIN ACCESO' : 'ABRIR PANEL'}</span>
+                {!bloqueada && <span className="card-arrow">&rarr;</span>}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </main>
     </div>
   );
 }
+  

@@ -205,3 +205,19 @@
 .mecanico-card:hover .card-arrow {
   transform: translateX(6px);
 }
+
+/*Mejora para los datos del menu Mecanico*/
+.mecanico-card-restringida {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.mecanico-card-restringida:hover {
+  transform: none;
+}
+
+.mecanico-card-restringida .card-tag {
+  background: #7c7a73;
+  color: #f4f2ec;
+}

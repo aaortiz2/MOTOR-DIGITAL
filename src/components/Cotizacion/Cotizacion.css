@@ -1,0 +1,561 @@
+/* ESTRUCTURA GENERAL DE LA PÁGINA */
+.cotizacion-screen {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* HEADER */
+.cotizacion-header {
+  width: 100%;
+  max-width: 900px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 25px;
+}
+
+.header-brand h1 {
+  color: #fbbf24;
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+.header-brand p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.trabajador-badge {
+  background-color: rgba(51, 65, 85, 0.6);
+  border: 1px solid #475569;
+  padding: 8px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge-icon {
+  font-size: 1.5rem;
+}
+
+.badge-rol {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.badge-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* TARJETA PRINCIPAL CON DATOS EXTRAÍDOS */
+.cotizacion-card-main {
+  width: 100%;
+  max-width: 900px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.main-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.main-card-header h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: #f1f5f9;
+}
+
+.btn-reintentar {
+  background: none;
+  border: none;
+  color: #fbbf24;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.datos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.dato-box {
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.dato-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.dato-valor {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.dato-sub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.dato-fecha {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-transform: capitalize;
+}
+
+.dato-vacio {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.moto-detalles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.sub-label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.placa-highlight {
+  color: #fbbf24;
+}
+
+/* MODALES */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* MODAL CLIENTE TIPO GOOGLE */
+.google-search-modal {
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 550px;
+  padding: 25px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-top {
+  text-align: center;
+}
+
+.google-logo-style {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.modal-top h3 {
+  margin: 5px 0 0 0;
+  color: #f8fafc;
+}
+
+.modal-top p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.google-search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 30px;
+  padding: 8px 18px;
+}
+
+.search-icon {
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+.google-search-bar input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 1rem;
+  outline: none;
+}
+
+.google-suggestions {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-item:hover, .suggestion-item.selected {
+  background-color: rgba(251, 191, 36, 0.15);
+  border-color: #fbbf24;
+}
+
+.btn-aceptar-cliente {
+  width: 100%;
+  background-color: #fbbf24;
+  color: #0f172a;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-aceptar-cliente:disabled {
+  background-color: #475569;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* MODAL CONFIRMACIÓN MOTO */
+.confirm-modal {
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-icon-bike {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-confirm-yes, .btn-confirm-no {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-confirm-yes {
+  background-color: #fbbf24;
+  color: #0f172a;
+}
+
+.btn-confirm-no {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+/* FORMULARIO DE NUEVA MOTO */
+.nueva-moto-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-grid input {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-guardar {
+  flex: 1;
+  background-color: #fbbf24;
+  color: #0f172a;
+  font-weight: bold;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  background-color: #475569;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Registro de Reparacion */
+
+.reparacion-box {
+  margin-top: 15px;
+  border-color: #475569;
+}
+
+.reparacion-box-restringida {
+  opacity: 0.65;
+  background-color: rgba(71, 85, 105, 0.25);
+}
+
+
+/* Lista de repuestos  */
+
+.proforma-box {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.repuesto-search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+
+.repuesto-search-bar input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.repuesto-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.repuesto-suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: rgba(15, 23, 42, 0.5);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.repuesto-suggestion-item:hover {
+  background-color: rgba(251, 191, 36, 0.15);
+  border-color: #fbbf24;
+}
+
+.repuesto-suggestion-item small {
+  color: #94a3b8;
+}
+
+.repuesto-precio {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.proforma-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+.proforma-table th {
+  text-align: left;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 6px 8px;
+  border-bottom: 1px solid #334155;
+}
+
+.proforma-table td {
+  padding: 8px;
+  border-bottom: 1px solid #1e293b;
+  color: #f8fafc;
+}
+
+.proforma-input {
+  width: 60px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 4px 6px;
+  color: #f8fafc;
+  font-size: 0.85rem;
+}
+
+.btn-quitar-item {
+  background: transparent;
+  border: 1px solid #475569;
+  color: #f87171;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.btn-quitar-item:hover {
+  border-color: #f87171;
+  background-color: rgba(248, 113, 113, 0.12);
+}
+
+.proforma-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: rgba(251, 191, 36, 0.1);
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #fbbf24;
+}
+
+.proforma-total strong {
+  font-size: 1.2rem;
+}
+
+.btn-guardar-cotizacion {
+  background-color: #22c55e;
+  color: #05230f;
+  font-weight: 800;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.btn-guardar-cotizacion:hover:not(:disabled) {
+  background-color: #16a34a;
+}
+
+.btn-guardar-cotizacion:disabled {
+  background-color: #475569;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   ESTILOS PARA LOS BOTONES DEL HEADER
+   ========================================== */
+
+/* Contenedor flex para alinear los botones a la derecha */
+.header-acciones {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Botón de Cancelar / Volver */
+.btn-cancelar-volver {
+  background: none;
+  border: none;
+  color: #f87171; 
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.btn-cancelar-volver:hover {
+  color: #ef4444; 
+}

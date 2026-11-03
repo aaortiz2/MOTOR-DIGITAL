@@ -9,6 +9,7 @@ import MenuMecanico from './components/MenuMecanico/menu_Mecanico';
 import RegistroMecanico from './components/RegistroMecanico';
 import Revision from './components/RevisionForm';
 import Notificacion from './components/v_notificacion';
+import Cotizacion from './components/Cotizacion/Cotizacion'; // 1. Importas el componente
 
 function App() {
   return (
@@ -26,6 +27,9 @@ function App() {
         <Route path="/registro-mecanico" element={<RegistroMecanico />} />
         <Route path="/notificaciones" element={<Notificacion />} />
         <Route path="/revision" element={<Revision />} />
+
+        {/* 2. Añades la ruta para la cotización */}
+        <Route path="/cotizacion" element={<Cotizacion />} />
       </Routes>
     </BrowserRouter>
   );

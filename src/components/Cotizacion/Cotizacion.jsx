@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, CheckCircle, User, Bike, Calendar, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import './Cotizacion.css';
 
-const API_URL = 'http://localhost:5000/api';
+// URL base de nuestro servidor backend en Node.js
+const API_BASE = 'http://localhost:3000/api';
 
 export default function Cotizacion({ usuarioLogueado, onVolver }) {
-  // 1. TRABAJADOR AUTOMÁTICO SEGÚN EL LOGIN
-  const [trabajador] = useState(usuarioLogueado || {
-    Nombre: 'Pepe',
-    Apellido: 'Cuella',
-    Rol: 'Mecanico'
-  });
+  const navigate = useNavigate();
 
-  // ESTADOS DEL FLUJO DE COTIZACIÓN
+  // 1. TRABAJADOR AUTOMÁTICO SEGÚN SESIÓN
+  const [trabajador, setTrabajador] = useState(null); 
+  const [cargandoTrabajador, setCargandoTrabajador] = useState(true);
+
+  // ESTADOS DEL FLUJO DE TRABAJO (Modales)
   const [modalClienteOpen, setModalClienteOpen] = useState(true);
   const [busquedaCliente, setBusquedaCliente] = useState('');
-  const [clientesEncontrados, setClientesEncontrados] = useState([]);
+  const [clientesSugeridos, setClientesSugeridos] = useState([]);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
 
   const [preguntaMotoOpen, setPreguntaMotoOpen] = useState(false);
@@ -24,253 +25,492 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
 
   const [modoNuevaMoto, setModoNuevaMoto] = useState(false);
   const [nuevaMoto, setNuevaMoto] = useState({
-    Placa: '',
-    Marca: '',
-    Modelo: '',
-    Color: '',
-    Kilometraje_Actual: ''
+    Placa: '', Marca: '', Modelo: '', Color: '', Kilometraje_Actual: ''
   });
 
-  // Fecha actual extraída del dispositivo
-  const [fechaActual] = useState(new Date().toLocaleDateString('es-BO', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }));
+  // --- LISTA DE REPUESTOS / PROFORMA ---
+  const [busquedaRepuesto, setBusquedaRepuesto] = useState('');
+  const [repuestosSugeridos, setRepuestosSugeridos] = useState([]);
+  const [items, setItems] = useState([]); 
+  const [guardando, setGuardando] = useState(false);
+  
+  const [cotizacionGuardada, setCotizacionGuardada] = useState(null); 
 
-  // ==========================================
-  // BÚSQUEDA DE CLIENTES EN TIEMPO REAL (Postgres)
-  // ==========================================
+  // Fecha extraída automáticamente del dispositivo
+  const [fechaActual] = useState(
+    new Date().toLocaleDateString('es-BO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  );
+
+  // Cargar datos del trabajador al iniciar
   useEffect(() => {
-    if (busquedaCliente.trim().length === 0) {
-      setClientesEncontrados([]);
+    const usuarioSesion = usuarioLogueado || localStorage.getItem('nombreUsuario');
+
+    if (!usuarioSesion) {
+      setCargandoTrabajador(false);
       return;
     }
 
-    const timer = setTimeout(async () => {
-      try {
-        const res = await fetch(`${API_URL}/clientes/buscar?q=${encodeURIComponent(busquedaCliente)}`);
-        const data = await res.json();
-        setClientesEncontrados(data);
-      } catch (err) {
-        console.error("Error buscando clientes:", err);
-      }
+    fetch(`${API_BASE}/trabajador/${usuarioSesion}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTrabajador(data.trabajador);
+        }
+      })
+      .catch((err) => console.error("Error al cargar trabajador:", err))
+      .finally(() => setCargandoTrabajador(false));
+  }, [usuarioLogueado]);
+
+  const rol = (trabajador?.Rol || localStorage.getItem('rol') || '').toLowerCase();
+  const esMecanico = rol.includes('mecanico');
+
+  const nombreTrabajador = trabajador
+    ? `${trabajador.Nombre} ${trabajador.Apellido}`
+    : cargandoTrabajador
+      ? 'Cargando...'
+      : 'Sesión no identificada';
+
+  // Búsqueda en tiempo real de clientes
+  useEffect(() => {
+    if (busquedaCliente.trim() === '') {
+      setClientesSugeridos([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(() => {
+      fetch(`${API_BASE}/clientes/buscar?q=${encodeURIComponent(busquedaCliente)}`)
+        .then((res) => res.json())
+        .then((data) => setClientesSugeridos(data))
+        .catch((err) => console.error("Error buscando clientes:", err));
+    }, 250);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [busquedaCliente]);
+
+  // Búsqueda en tiempo real de repuestos
+  useEffect(() => {
+    if (!busquedaRepuesto || busquedaRepuesto.trim() === '') {
+      setRepuestosSugeridos([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(() => {
+      fetch(`${API_BASE}/repuestos/buscar?q=${encodeURIComponent(busquedaRepuesto)}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Error en la respuesta del servidor");
+          return res.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setRepuestosSugeridos(data);
+          } else {
+            setRepuestosSugeridos([]);
+          }
+        })
+        .catch((err) => {
+          console.error("Error buscando repuestos:", err);
+          setRepuestosSugeridos([]);
+        });
     }, 300);
 
-    return () => clearTimeout(timer);
-  }, [busquedaCliente]);
+    return () => clearTimeout(delayDebounceFn);
+  }, [busquedaRepuesto]);
 
   const handleAceptarCliente = () => {
     if (clienteSeleccionado) {
       setModalClienteOpen(false);
-      setPreguntaMotoOpen(true);
+      setPreguntaMotoOpen(true); 
     }
   };
 
-  // ==========================================
-  // GESTIÓN DE MOTOS
-  // ==========================================
-  const handleRespuestaTieneMoto = async (tiene) => {
+  const handleRespuestaTieneMoto = (tiene) => {
     setPreguntaMotoOpen(false);
     if (tiene && clienteSeleccionado) {
-      try {
-        const res = await fetch(`${API_URL}/motos/cliente/${clienteSeleccionado.id_Cliente}`);
-        const data = await res.json();
-        setMotosCliente(data);
-        setModalMotoOpen(true);
-      } catch (err) {
-        console.error("Error cargando motos:", err);
-      }
-    }
-  };
-
-  const handleGuardarNuevaMoto = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${API_URL}/motos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_Cliente: clienteSeleccionado.id_Cliente,
-          ...nuevaMoto
+      fetch(`${API_BASE}/motos/cliente/${clienteSeleccionado.id_Cliente}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setMotosCliente(data);
+          setModalMotoOpen(true); 
         })
-      });
-      const motoGuardada = await res.json();
-      setMotoSeleccionada(motoGuardada);
-      setModoNuevaMoto(false);
-      setModalMotoOpen(false);
-    } catch (err) {
-      console.error("Error al registrar moto:", err);
+        .catch((err) => console.error("Error al buscar motos:", err));
     }
   };
 
-  const reiniciarFlujo = () => {
+  const handleGuardarNuevaMoto = (e) => {
+    e.preventDefault();
+    fetch(`${API_BASE}/motos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_Cliente: clienteSeleccionado.id_Cliente,
+        ...nuevaMoto
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setMotoSeleccionada(data.moto); 
+          setModoNuevaMoto(false);
+          setModalMotoOpen(false);
+        }
+      })
+      .catch((err) => console.error("Error al guardar moto:", err));
+  };
+
+  const reiniciarProceso = () => {
     setClienteSeleccionado(null);
     setMotoSeleccionada(null);
     setModalClienteOpen(true);
   };
 
+  const handleIrAReparacion = () => {
+    if (!esMecanico || !clienteSeleccionado) return;
+    navigate('/revision', {
+      state: {
+        cliente: clienteSeleccionado,
+        moto: motoSeleccionada,
+      },
+    });
+  };
+
+  const agregarRepuesto = (repuesto) => {
+    setItems((prev) => {
+      const yaExiste = prev.find((i) => i.Codigo_Repuesto === repuesto.Codigo_Repuesto);
+      if (yaExiste) {
+        return prev.map((i) =>
+          i.Codigo_Repuesto === repuesto.Codigo_Repuesto
+            ? { ...i, Cantidad: i.Cantidad + 1 }
+            : i
+        );
+      }
+      return [
+        ...prev,
+        {
+          Codigo_Repuesto: repuesto.Codigo_Repuesto,
+          Nombre: repuesto.Nombre,
+          Precio_Unitario: Number(repuesto.Precio_Unitario),
+          Cantidad: 1,
+          Descuento: 0,
+        },
+      ];
+    });
+    setBusquedaRepuesto('');
+    setRepuestosSugeridos([]);
+  };
+
+  const actualizarItem = (codigo, campo, valor) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.Codigo_Repuesto === codigo ? { ...i, [campo]: Math.max(0, Number(valor) || 0) } : i
+      )
+    );
+  };
+
+  const quitarItem = (codigo) => {
+    setItems((prev) => prev.filter((i) => i.Codigo_Repuesto !== codigo));
+  };
+
+  const calcularSubtotal = (item) => item.Cantidad * item.Precio_Unitario - item.Descuento;
+
+  const montoTotal = items.reduce((acc, item) => acc + calcularSubtotal(item), 0);
+
+  const handleGuardarCotizacion = () => {
+    // CORRECCIÓN: Se usa trabajador.id_trabajador en lugar de id_Usuarios
+    if (!clienteSeleccionado || items.length === 0 || !trabajador?.id_trabajador) return;
+
+    setGuardando(true);
+    fetch(`${API_BASE}/cotizaciones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_Cliente: clienteSeleccionado.id_Cliente,
+        id_trabajador: trabajador.id_trabajador,
+        id_Moto: motoSeleccionada?.id_Motocicleta || null,
+        Observaciones: '',
+        items: items.map((i) => ({
+          Codigo_Repuesto: i.Codigo_Repuesto,
+          Cantidad: i.Cantidad,
+          Precio_Unitario: i.Precio_Unitario,
+          Descuento: i.Descuento,
+        })),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setCotizacionGuardada(data);
+        } else {
+          alert(data.message || 'No se pudo guardar la cotización.');
+        }
+      })
+      .catch((err) => {
+        console.error('Error al guardar cotización:', err);
+        alert('No se pudo conectar con el servidor.');
+      })
+      .finally(() => setGuardando(false));
+  };
+
+  const handleNuevaCotizacion = () => {
+    setItems([]);
+    setCotizacionGuardada(null);
+    reiniciarProceso();
+  };
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-6 flex flex-col items-center">
-      
-      {/* HEADER */}
-      <header className="w-full max-w-4xl flex items-center justify-between bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg mb-6">
-        <div className="flex items-center gap-3">
-          {onVolver && (
-            <button onClick={onVolver} className="p-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-amber-400">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-amber-400">MOTO REPUESTOS EL BARATÓN</h1>
-            <p className="text-xs text-slate-400">Módulo de Creación de Cotizaciones</p>
-          </div>
+    <div className="cotizacion-screen">
+      <header className="cotizacion-header">
+        <div className="header-brand">
+          <h1>MOTO REPUESTOS EL BARATÓN</h1>
+          <p>Módulo de Registro de Cotizaciones Web</p>
         </div>
 
-        {/* TRABAJADOR AUTOMÁTICO */}
-        <div className="bg-slate-700/60 border border-slate-600 px-4 py-2 rounded-lg flex items-center gap-3">
-          <User className="text-amber-400 w-5 h-5" />
+        <div className="trabajador-badge">
+          <span className="badge-icon">👤</span>
           <div>
-            <p className="text-xs text-slate-400">Rol: {trabajador.Rol}</p>
-            <p className="text-sm font-semibold text-white">{trabajador.Nombre} {trabajador.Apellido}</p>
+            <p className="badge-rol">
+              Atendido por ({cargandoTrabajador ? 'Cargando...' : (trabajador?.Rol || 'Sin rol')}):
+            </p>
+            <p className="badge-nombre">{nombreTrabajador}</p>
           </div>
         </div>
       </header>
 
-      {/* PANTALLA PRINCIPAL CON DATOS REGISTRADOS */}
-      <main className="w-full max-w-4xl bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
-        <div className="flex justify-between items-center border-b border-slate-700 pb-4">
-          <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-            📋 Registro de Cotización Actual
-          </h2>
-          <button onClick={reiniciarFlujo} className="text-xs text-amber-400 hover:underline">
-            Cambiar cliente / moto
-          </button>
+      <main className="cotizacion-card-main">
+        <div className="main-card-header">
+          <h2>📋 Resumen de Cotización Registrar</h2>
+          
+          <div className="header-acciones">
+            <button 
+              className="btn-cancelar-volver" 
+              onClick={() => (onVolver ? onVolver() : navigate(-1))}
+            >
+              ⬅️ Cancelar / Volver al Inicio
+            </button>
+
+            {clienteSeleccionado && (
+              <button className="btn-reintentar" onClick={reiniciarProceso}>
+                🔄 Cambiar cliente / moto
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          {/* TRABAJADOR */}
-          <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-lg">
-            <span className="text-xs text-slate-400 uppercase font-semibold">Trabajador:</span>
-            <p className="text-lg font-bold text-slate-200 mt-1">
-              {trabajador.Nombre} {trabajador.Apellido}
-            </p>
-            <span className="inline-block mt-2 text-xs bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded border border-amber-400/20 capitalize">
-              {trabajador.Rol}
-            </span>
-          </div>
-
-          {/* CLIENTE */}
-          <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-lg">
-            <span className="text-xs text-slate-400 uppercase font-semibold">Cliente:</span>
-            {clienteSeleccionado ? (
-              <div>
-                <p className="text-lg font-bold text-slate-200 mt-1">
-                  {clienteSeleccionado.Nombre} {clienteSeleccionado.Apellido}
-                </p>
-                <p className="text-xs text-slate-400">Celular: {clienteSeleccionado.Celular}</p>
-              </div>
-            ) : (
-              <p className="text-sm text-slate-500 italic mt-2">Seleccione un cliente...</p>
+        <div className="datos-grid">
+          <div className="dato-box">
+            <span className="dato-label">Trabajador:</span>
+            <p className="dato-valor">{nombreTrabajador}</p>
+            {!cargandoTrabajador && trabajador && (
+              <p className="dato-sub">{trabajador.Rol}</p>
             )}
           </div>
 
-          {/* FECHA ACTUAL */}
-          <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-lg">
-            <span className="text-xs text-slate-400 uppercase font-semibold flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" /> Fecha Actual:
-            </span>
-            <p className="text-sm font-semibold text-slate-200 mt-2 capitalize">
-              {fechaActual}
-            </p>
+          <div className="dato-box">
+            <span className="dato-label">Cliente:</span>
+            {clienteSeleccionado ? (
+              <div>
+                <p className="dato-valor">{clienteSeleccionado.Nombre} {clienteSeleccionado.Apellido}</p>
+                <p className="dato-sub">Celular: {clienteSeleccionado.Celular}</p>
+              </div>
+            ) : (
+              <p className="dato-vacio">Sin cliente seleccionado</p>
+            )}
+          </div>
+
+          <div className="dato-box">
+            <span className="dato-label">Fecha Actual:</span>
+            <p className="dato-fecha">{fechaActual}</p>
           </div>
         </div>
 
-        {/* MOTO */}
-        <div className="bg-slate-900/60 border border-slate-700 p-4 rounded-lg">
-          <span className="text-xs text-slate-400 uppercase font-semibold flex items-center gap-1 mb-2">
-            <Bike className="w-4 h-4 text-amber-400" /> Moto:
-          </span>
+        <div className="dato-box moto-box">
+          <span className="dato-label">Moto Asociada:</span>
           {motoSeleccionada ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-xs text-slate-400">Placa:</p>
-                <p className="font-bold text-amber-400">{motoSeleccionada.Placa}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Color:</p>
-                <p className="font-semibold text-slate-200">{motoSeleccionada.Color}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Marca / Modelo:</p>
-                <p className="font-semibold text-slate-200">{motoSeleccionada.Marca} {motoSeleccionada.Modelo}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Kilometraje Actual:</p>
-                <p className="font-semibold text-slate-200">{motoSeleccionada.Kilometraje_Actual} km</p>
-              </div>
+            <div className="moto-detalles-grid">
+              <div><span className="sub-label">Placa:</span> <strong className="placa-highlight">{motoSeleccionada.Placa}</strong></div>
+              <div><span className="sub-label">Color:</span> {motoSeleccionada.Color}</div>
+              <div><span className="sub-label">Marca / Modelo:</span> {motoSeleccionada.Marca} {motoSeleccionada.Modelo}</div>
+              <div><span className="sub-label">Kilometraje:</span> {motoSeleccionada.Kilometraje_Actual} KM</div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 italic">Ninguna moto asociada a esta cotización.</p>
+            <p className="dato-vacio">No se registró ninguna motocicleta para esta cotización.</p>
+          )}
+        </div>
+
+        <div className="dato-box proforma-box">
+          <span className="dato-label">Repuestos de la Cotización:</span>
+
+          <div className="repuesto-search-bar">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Busca un repuesto por nombre o marca..."
+              value={busquedaRepuesto}
+              onChange={(e) => setBusquedaRepuesto(e.target.value)}
+            />
+          </div>
+
+          {repuestosSugeridos.length > 0 && (
+            <div className="repuesto-suggestions">
+              {repuestosSugeridos.map((r) => (
+                <div key={r.Codigo_Repuesto} className="repuesto-suggestion-item">
+                  <div>
+                    <strong>{r.Nombre}</strong> <small>({r.Marca})</small><br/>
+                    <span className="repuesto-precio">Bs {Number(r.Precio_Unitario).toFixed(2)}</span>
+                    <small> | Stock: {r.Stock_Actual}</small>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn-agregar-repuesto"
+                    onClick={() => agregarRepuesto(r)}
+                  >
+                    ➕ Agregar
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {items.length === 0 ? (
+            <p className="dato-vacio">Todavía no agregaste ningún repuesto a esta cotización.</p>
+          ) : (
+            <table className="proforma-table">
+              <thead>
+                <tr>
+                  <th>Repuesto</th>
+                  <th>Cant.</th>
+                  <th>P. Unit.</th>
+                  <th>Desc.</th>
+                  <th>Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.Codigo_Repuesto}>
+                    <td>{item.Nombre}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.Cantidad}
+                        onChange={(e) => actualizarItem(item.Codigo_Repuesto, 'Cantidad', e.target.value)}
+                        className="proforma-input"
+                      />
+                    </td>
+                    <td>Bs {item.Precio_Unitario.toFixed(2)}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min="0"
+                        value={item.Descuento}
+                        onChange={(e) => actualizarItem(item.Codigo_Repuesto, 'Descuento', e.target.value)}
+                        className="proforma-input"
+                      />
+                    </td>
+                    <td>Bs {calcularSubtotal(item).toFixed(2)}</td>
+                    <td>
+                      <button className="btn-quitar-item" onClick={() => quitarItem(item.Codigo_Repuesto)}>
+                        ×
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {items.length > 0 && (
+            <div className="proforma-total">
+              <span>Total a invertir en la reparación:</span>
+              <strong>Bs {montoTotal.toFixed(2)}</strong>
+            </div>
+          )}
+
+          <button
+            className="btn-guardar-cotizacion"
+            disabled={!clienteSeleccionado || items.length === 0 || guardando}
+            onClick={handleGuardarCotizacion}
+          >
+            {guardando ? 'Guardando...' : '💾 Guardar Cotización'}
+          </button>
+        </div>
+
+        <div className={`dato-box reparacion-box${!esMecanico ? ' reparacion-box-restringida' : ''}`}>
+          <span className="dato-label">Reparación / Mano de Obra:</span>
+          {esMecanico ? (
+            <>
+              <p className="dato-sub">
+                Como mecánico puedes registrar el diagnóstico y la mano de obra de esta cotización.
+              </p>
+              <button
+                className="btn-aceptar-cliente"
+                style={{ marginTop: '12px' }}
+                disabled={!clienteSeleccionado}
+                onClick={handleIrAReparacion}
+              >
+                🔧 Registrar Reparación
+              </button>
+            </>
+          ) : (
+            <p className="dato-vacio">
+              Restringido para tu rol de recepción. Solo un mecánico puede registrar la
+              reparación; tú puedes dejar lista la cotización de repuestos y el cliente/moto.
+            </p>
           )}
         </div>
       </main>
 
-      {/* ========================================== */}
-      {/* MODAL 1: BUSCADOR TIPO GOOGLE DE CLIENTES  */}
-      {/* ========================================== */}
       {modalClienteOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-4">
-            <div className="text-center space-y-1">
-              <h3 className="text-xl font-bold text-amber-400">Buscar Cliente en Base de Datos</h3>
-              <p className="text-xs text-slate-400">Escribe el nombre, apellido o celular del cliente</p>
+        <div className="modal-backdrop">
+          <div className="google-search-modal">
+            <div className="modal-top">
+              <span className="google-logo-style">G</span>
+              <h3>Buscador de Clientes</h3>
+              <p>Busca en la base de datos de El Baratón</p>
             </div>
 
-            <div className="relative">
-              <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+            <div className="google-search-bar">
+              <span className="search-icon">🔍</span>
               <input
                 type="text"
+                placeholder="Escribe el nombre, apellido o celular..."
                 value={busquedaCliente}
                 onChange={(e) => setBusquedaCliente(e.target.value)}
-                placeholder="Ej. Juan Pérez..."
-                className="w-full bg-slate-900 border border-slate-600 rounded-full py-3 pl-12 pr-4 text-slate-100 focus:outline-none focus:border-amber-400"
                 autoFocus
               />
             </div>
 
-            <div className="max-h-60 overflow-y-auto space-y-2">
-              {clientesEncontrados.map((cli) => (
-                <div
-                  key={cli.id_Cliente}
-                  onClick={() => setClienteSeleccionado(cli)}
-                  className={`p-3 rounded-xl border cursor-pointer flex justify-between items-center ${
-                    clienteSeleccionado?.id_Cliente === cli.id_Cliente
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-                      : 'bg-slate-900/50 border-slate-700 text-slate-300 hover:bg-slate-700'
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold text-sm">{cli.Nombre} {cli.Apellido}</p>
-                    <p className="text-xs text-slate-400">Celular: {cli.Celular}</p>
+            <div className="google-suggestions">
+              {clientesSugeridos.length > 0 ? (
+                clientesSugeridos.map((cli) => (
+                  <div
+                    key={cli.id_Cliente}
+                    className={`suggestion-item ${clienteSeleccionado?.id_Cliente === cli.id_Cliente ? 'selected' : ''}`}
+                    onClick={() => setClienteSeleccionado(cli)}
+                  >
+                    <span className="item-icon">👤</span>
+                    <div className="item-info">
+                      <p className="item-title">{cli.Nombre} {cli.Apellido}</p>
+                      <p className="item-sub">Celular: {cli.Celular}</p>
+                    </div>
                   </div>
-                  {clienteSeleccionado?.id_Cliente === cli.id_Cliente && (
-                    <CheckCircle className="w-5 h-5 text-amber-400" />
-                  )}
-                </div>
-              ))}
+                ))
+              ) : busquedaCliente.length > 0 ? (
+                <p className="no-results">No se encontraron clientes coincidentes.</p>
+              ) : (
+                <p className="search-hint">Empieza a escribir para ver sugerencias...</p>
+              )}
             </div>
 
             <button
-              onClick={handleAceptarCliente}
+              className="btn-aceptar-cliente"
               disabled={!clienteSeleccionado}
-              className={`w-full py-3 rounded-xl font-bold transition-all ${
-                clienteSeleccionado
-                  ? 'bg-amber-400 text-slate-900 hover:bg-amber-300 cursor-pointer'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
-              }`}
+              onClick={handleAceptarCliente}
             >
               Aceptar Cliente
             </button>
@@ -278,159 +518,146 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* MODAL 2: ¿TIENE MOTO?                      */}
-      {/* ========================================== */}
       {preguntaMotoOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-6 text-center space-y-6 shadow-2xl">
-            <Bike className="w-12 h-12 text-amber-400 mx-auto" />
-            <div>
-              <h3 className="text-lg font-bold text-slate-100">¿El cliente tiene motocicleta?</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Cliente: <span className="text-amber-300">{clienteSeleccionado?.Nombre} {clienteSeleccionado?.Apellido}</span>
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => handleRespuestaTieneMoto(true)}
-                className="flex-1 bg-amber-400 text-slate-900 py-3 rounded-xl font-bold hover:bg-amber-300"
-              >
-                SÍ
-              </button>
-              <button
-                onClick={() => handleRespuestaTieneMoto(false)}
-                className="flex-1 bg-slate-700 text-slate-200 py-3 rounded-xl font-bold hover:bg-slate-600"
-              >
-                NO
-              </button>
+        <div className="modal-backdrop">
+          <div className="confirm-modal">
+            <span className="modal-icon-bike">🏍️</span>
+            <h3>¿El cliente tiene moto?</h3>
+            <p>Cliente: <strong>{clienteSeleccionado?.Nombre} {clienteSeleccionado?.Apellido}</strong></p>
+
+            <div className="confirm-buttons">
+              <button className="btn-confirm-yes" onClick={() => handleRespuestaTieneMoto(true)}>SÍ</button>
+              <button className="btn-confirm-no" onClick={() => handleRespuestaTieneMoto(false)}>NO</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* MODAL 3: BUSCADOR DE MOTOS / NUEVA MOTO    */}
-      {/* ========================================== */}
       {modalMotoOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-4">
+        <div className="modal-backdrop">
+          <div className="google-search-modal">
             {!modoNuevaMoto ? (
               <>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-bold text-amber-400">Motos de {clienteSeleccionado?.Nombre}</h3>
-                    <p className="text-xs text-slate-400">Selecciona una moto registrada o añade una nueva</p>
-                  </div>
-                  <button
-                    onClick={() => setModoNuevaMoto(true)}
-                    className="bg-amber-500/20 text-amber-300 border border-amber-400/40 text-xs px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-amber-500/30"
-                  >
-                    <Plus className="w-4 h-4" /> Registrar Nueva Moto
-                  </button>
+                <div className="modal-top">
+                  <h3>Motos del Cliente</h3>
+                  <p>Selecciona la motocicleta registrada en PostgreSQL</p>
                 </div>
 
-                <div className="max-h-60 overflow-y-auto space-y-2">
+                <div className="motos-list">
                   {motosCliente.length > 0 ? (
                     motosCliente.map((m) => (
                       <div
                         key={m.id_Motocicleta}
+                        className="moto-card-item"
                         onClick={() => {
                           setMotoSeleccionada(m);
                           setModalMotoOpen(false);
                         }}
-                        className="p-3 bg-slate-900/60 border border-slate-700 hover:border-amber-400 rounded-xl cursor-pointer flex justify-between items-center text-sm"
                       >
                         <div>
-                          <p className="font-bold text-amber-300">Placa: {m.Placa}</p>
-                          <p className="text-xs text-slate-400">Marca: {m.Marca} | Color: {m.Color}</p>
+                          <p className="moto-placa">Placa: {m.Placa}</p>
+                          <p className="moto-desc">{m.Marca} {m.Modelo} — Color: {m.Color}</p>
                         </div>
-                        <span className="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300 border border-slate-600">
-                          {m.Kilometraje_Actual} KM
-                        </span>
+                        <span className="moto-km">{m.Kilometraje_Actual} KM</span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 space-y-2">
-                      <p className="text-sm text-slate-400">El cliente no tiene motocicletas registradas.</p>
-                      <button
-                        onClick={() => setModoNuevaMoto(true)}
-                        className="text-xs text-amber-400 font-semibold underline"
-                      >
-                        Registrar primera moto ahora
-                      </button>
-                    </div>
+                    <p className="no-results">No hay motocicletas registradas para este cliente.</p>
                   )}
                 </div>
+
+                <button className="btn-nueva-moto" onClick={() => setModoNuevaMoto(true)}>
+                  ➕ Registrar Nueva Moto
+                </button>
               </>
             ) : (
-              <form onSubmit={handleGuardarNuevaMoto} className="space-y-4">
-                <h3 className="text-lg font-bold text-amber-400">Registrar Nueva Motocicleta</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-slate-400">Placa:</label>
-                    <input
-                      required
-                      type="text"
-                      placeholder="Ej. 1234-ABC"
-                      value={nuevaMoto.Placa}
-                      onChange={(e) => setNuevaMoto({ ...nuevaMoto, Placa: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-400">Marca:</label>
-                    <input
-                      required
-                      type="text"
-                      placeholder="Ej. Honda"
-                      value={nuevaMoto.Marca}
-                      onChange={(e) => setNuevaMoto({ ...nuevaMoto, Marca: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-400">Modelo:</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. Wave 110"
-                      value={nuevaMoto.Modelo}
-                      onChange={(e) => setNuevaMoto({ ...nuevaMoto, Modelo: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-400">Color:</label>
-                    <input
-                      type="text"
-                      placeholder="Ej. Rojo"
-                      value={nuevaMoto.Color}
-                      onChange={(e) => setNuevaMoto({ ...nuevaMoto, Color: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-xs text-slate-400">Kilometraje Actual:</label>
-                    <input
-                      type="number"
-                      placeholder="Ej. 15000"
-                      value={nuevaMoto.Kilometraje_Actual}
-                      onChange={(e) => setNuevaMoto({ ...nuevaMoto, Kilometraje_Actual: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
+              <form onSubmit={handleGuardarNuevaMoto} className="nueva-moto-form">
+                <h3>Registrar Nueva Motocicleta</h3>
+                <div className="form-grid">
+                  <input
+                    required
+                    type="text"
+                    placeholder="Placa (Ej. 1234-ABC)"
+                    value={nuevaMoto.Placa}
+                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Placa: e.target.value })}
+                  />
+                  <input
+                    required
+                    type="text"
+                    placeholder="Marca (Ej. Honda)"
+                    value={nuevaMoto.Marca}
+                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Marca: e.target.value })}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Modelo (Ej. Wave 110)"
+                    value={nuevaMoto.Modelo}
+                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Modelo: e.target.value })}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Color (Ej. Rojo)"
+                    value={nuevaMoto.Color}
+                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Color: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Kilometraje Actual"
+                    value={nuevaMoto.Kilometraje_Actual}
+                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Kilometraje_Actual: e.target.value })}
+                  />
                 </div>
 
-                <div className="flex gap-3 pt-2">
-                  <button type="submit" className="flex-1 bg-amber-400 text-slate-900 py-2.5 rounded-xl font-bold hover:bg-amber-300">
-                    Guardar Moto
-                  </button>
-                  <button type="button" onClick={() => setModoNuevaMoto(false)} className="bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-semibold hover:bg-slate-600">
-                    Cancelar
-                  </button>
+                <div className="form-actions">
+                  <button type="submit" className="btn-guardar">Guardar Moto</button>
+                  <button type="button" className="btn-cancelar" onClick={() => setModoNuevaMoto(false)}>Cancelar</button>
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {cotizacionGuardada && (
+        <div className="modal-backdrop">
+          <div className="confirm-modal">
+            <span className="modal-icon-bike">✅</span>
+            <h3>Cotización N° {cotizacionGuardada.id_Cotizacion} guardada</h3>
+            <p>Total de la proforma:</p>
+            <p className="placa-highlight" style={{ fontSize: '1.6rem', fontWeight: 800 }}>
+              Bs {Number(cotizacionGuardada.Monto_Total).toFixed(2)}
+            </p>
+            
+            <div className="confirm-buttons" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <a 
+                href={`http://localhost:3000/api/cotizaciones/${cotizacionGuardada.id_Cotizacion}/pdf`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ width: '100%', textDecoration: 'none' }}
+              >
+                <button className="btn-confirm-yes" style={{ width: '100%', backgroundColor: '#3b82f6', color: '#fff', padding: '12px' }}>
+                  📥 Descargar Cotización en PDF
+                </button>
+              </a>
+
+              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                <button 
+                  className="btn-confirm-no" 
+                  onClick={handleNuevaCotizacion}
+                  style={{ flex: 1, padding: '12px' }}
+                >
+                  ➕ Nueva Cotización
+                </button>
+                <button
+                  className="btn-confirm-no"
+                  onClick={() => (onVolver ? onVolver() : navigate(-1))}
+                  style={{ flex: 1, padding: '12px' }}
+                >
+                  Volver al Menú
+                </button>
+              </div>
+
+            </div>
           </div>
         </div>
       )}

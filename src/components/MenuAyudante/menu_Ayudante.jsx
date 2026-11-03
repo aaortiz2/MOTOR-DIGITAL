@@ -1,9 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './menu_Ayudante.css';
 
 export default function MenuAyudante() {
   const navigate = useNavigate();
+
+  const [trabajador, setTrabajador] = useState(null);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    const nombreUsuario = localStorage.getItem('nombreUsuario');
+
+    // Redirige al login si no hay nadie logueado
+    if (!nombreUsuario) {
+      navigate('/');
+      return;
+    }
+
+    // Consulta al backend para obtener los datos del ayudante
+    fetch(`http://localhost:3000/api/trabajador/${nombreUsuario}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTrabajador(data.trabajador);
+        }
+      })
+      .catch((err) => {
+        console.error('No se pudo obtener los datos del ayudante:', err);
+      })
+      .finally(() => setCargando(false));
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('nombreUsuario');
+    localStorage.removeItem('rol');
+    navigate('/');
+  };
 
   // Opciones principales de apoyo y recepción
   const ayudanteOptions = [
@@ -11,7 +43,7 @@ export default function MenuAyudante() {
       id: 'crear-cotizacion',
       title: 'Crear Cotización',
       desc: 'Generar presupuestos para clientes en mostrador o consultas',
-      path: '/cotizaciones',
+      path: '/cotizacion', // Sincronizado con la ruta declarada en App.jsx
       badge: 'PRESUPUESTOS',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,10 +78,18 @@ export default function MenuAyudante() {
       <header className="menu-ayudante-header">
         <div className="ayudante-header-info">
           <span className="ayudante-badge">RECEPCIÓN Y APOYO TÉCNICO</span>
-          <h1 className="menu-ayudante-title">PANEL <span>AYUDANTE</span></h1>
-          <p className="menu-ayudante-text">Atención al cliente, cotizaciones e ingreso de vehículos</p>
+          <h1 className="menu-ayudante-title">
+            PANEL <span>AYUDANTE</span>
+          </h1>
+          <p className="menu-ayudante-text">
+            {cargando
+              ? 'Cargando datos del trabajador...'
+              : trabajador
+                ? `Bienvenido, ${trabajador.Nombre} ${trabajador.Apellido} — ${trabajador.Rol || 'Ayudante'}`
+                : 'Atención al cliente, cotizaciones e ingreso de vehículos'}
+          </p>
         </div>
-        <button className="btn-logout-ayudante" onClick={() => navigate('/')}>
+        <button className="btn-logout-ayudante" onClick={handleLogout}>
           SALIR
         </button>
       </header>

@@ -9,7 +9,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setError('');
 
     try {
@@ -17,7 +17,7 @@ export default function Login() {
       const response = await fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           nombreUsuario: usuario, // Se conecta con la columna Nombre_Usuario
           password: password       // Se conecta con la columna Contraseña
         }),
@@ -26,8 +26,13 @@ export default function Login() {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem('nombreUsuario', usuario);
+        localStorage.setItem('rol', data.rol);
         // Convertimos el rol a minúsculas para compararlo sin errores
         const rol = data.rol.toLowerCase().trim();
+        if (rol.includes('mecanico')) {
+          navigate('/mecanico');
+        }
 
         // Redirección dinámica basada en el rol de la base de datos
         if (rol.includes('admin')) {
@@ -52,36 +57,36 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        
+
         <div className="brand-header">
           <h1 className="tvs-logo">TVS <span>MotoControl</span></h1>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           <h2 className="form-title">INICIAR SESIÓN</h2>
-          
+
           {/* Mensaje de error si las credenciales fallan */}
           {error && <p className="error-message" style={{ color: 'red', textAlign: 'center', marginBottom: '15px' }}>{error}</p>}
 
           <div className="input-group">
             <label>Usuario</label>
-            <input 
-              type="text" 
-              value={usuario} 
-              onChange={(e) => setUsuario(e.target.value)} 
-              placeholder="Ej. admin o mecanico" 
-              required 
+            <input
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              placeholder="Ej. admin o mecanico"
+              required
             />
           </div>
 
           <div className="input-group">
             <label>Contraseña</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••" 
-              required 
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
             />
           </div>
 

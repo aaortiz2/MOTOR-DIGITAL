@@ -9,27 +9,30 @@ import MenuMecanico from './components/MenuMecanico/menu_Mecanico';
 import RegistroMecanico from './components/RegistroMecanico';
 import Revision from './components/RevisionForm';
 import Notificacion from './components/v_notificacion';
-import Cotizacion from './components/Cotizacion/Cotizacion'; // 1. Importas el componente
+
+// Importamos los componentes de Cotizaciones
+import Cotizacion from './components/Cotizacion/Cotizacion';
+import ListaCotizaciones from './components/Cotizacion/ListaCotizaciones'; // <--- NUEVO IMPORT
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta principal (Login) */}
         <Route path="/" element={<Login />} />
         
-        {/* Rutas de los Menús */}
         <Route path="/admin" element={<MenuAdministrador />} />
         <Route path="/ayudante" element={<MenuAyudante />} />
         <Route path="/mecanico" element={<MenuMecanico />} />
         
-        {/* Rutas de los demás componentes */}
         <Route path="/registro-mecanico" element={<RegistroMecanico />} />
         <Route path="/notificaciones" element={<Notificacion />} />
         <Route path="/revision" element={<Revision />} />
 
-        {/* 2. Añades la ruta para la cotización */}
+        {/* Ruta para CREAR una nueva cotización */}
         <Route path="/cotizacion" element={<Cotizacion />} />
+        
+        {/* RUTA NUEVA: Para ver el historial de cotizaciones */}
+        <Route path="/cotizaciones" element={<ListaCotizaciones />} />
       </Routes>
     </BrowserRouter>
   );

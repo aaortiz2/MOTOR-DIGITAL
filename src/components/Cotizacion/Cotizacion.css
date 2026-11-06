@@ -545,17 +545,73 @@
   align-items: center;
 }
 
-/* Botón de Cancelar / Volver */
-.btn-cancelar-volver {
-  background: none;
+/* BOTÓN ROJO ESTILO TALLER (Para el header) */
+.btn-volver-rojo {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
   border: none;
-  color: #f87171; 
-  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  font-family: 'Montserrat', 'Arial Black', sans-serif; /* Misma tipografía del menú */
 }
 
-.btn-cancelar-volver:hover {
-  color: #ef4444; 
+.btn-volver-rojo:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.6);
+}
+
+/* ... (Tus estilos anteriores) ... */
+
+/* BOTÓN ROJO ESTILO TALLER (Para el header) */
+.btn-volver-rojo {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  font-family: 'Montserrat', 'Arial Black', sans-serif;
+}
+
+.btn-volver-rojo:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.6);
+}
+
+/* NUEVO BOTÓN AMARILLO ESTILO TALLER */
+.btn-cambiar-amarillo {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  font-family: 'Montserrat', 'Arial Black', sans-serif;
+}
+
+.btn-cambiar-amarillo:hover {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.6);
 }

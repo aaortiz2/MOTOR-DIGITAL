@@ -1,0 +1,245 @@
+/* Fondo con la misma estética del taller */
+.lista-container {
+  padding: 30px 20px;
+  font-family: 'Montserrat', 'Arial Black', sans-serif;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.75)), 
+              url('/fondo_tvs.jpg') center/cover no-repeat fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* HEADER IDÉNTICO AL MENÚ */
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(15, 23, 42, 0.85);
+  padding: 20px 28px;
+  border-radius: 12px;
+  border-left: 6px solid #e60012; /* Rojo TVS */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  margin-bottom: 25px;
+}
+
+.brand-badge {
+  display: inline-block;
+  background-color: #e60012;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.lista-title {
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  font-style: italic;
+}
+
+.lista-title span {
+  color: #f59e0b; /* Amarillo */
+}
+
+.lista-text {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-badge {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #475569;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-rol { font-size: 11px; color: #94a3b8; margin: 0; text-transform: uppercase; }
+.badge-nombre { font-size: 14px; font-weight: 800; color: #fff; margin: 0; }
+
+.btn-volver-inicio {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+.btn-volver-inicio:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+}
+
+/* TARJETA BLANCA (Como las del menú) */
+.lista-card {
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  border-top: 5px solid #003399; /* Azul TVS */
+}
+
+.lista-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.lista-subtitle {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.filtros {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtros label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.select-filtro {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid #cbd5e1;
+  background-color: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+/* TABLA */
+.tabla-wrapper {
+  overflow-x: auto;
+}
+
+.tabla-cotizaciones {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-cotizaciones th {
+  text-align: left;
+  padding: 12px;
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.tabla-cotizaciones td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.tabla-cotizaciones tr:hover {
+  background-color: #f8fafc;
+}
+
+.num-cot { color: #003399; font-size: 16px; }
+.sin-moto { color: #94a3b8; font-style: italic; font-size: 13px; }
+
+/* ETIQUETAS DE ESTADO */
+.badge-estado {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* BOTÓN DE PDF */
+.btn-descargar-pdf {
+  display: inline-block;
+  background-color: #e60012; /* Rojo para llamar la atención */
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 4px 10px rgba(230, 0, 18, 0.3);
+  white-space: nowrap;
+}
+
+.btn-descargar-pdf:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+/* SELECTOR DE ESTADO EN LA TABLA */
+.select-estado-tabla {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.select-estado-tabla:focus {
+  border-color: #003399;
+  box-shadow: 0 0 0 2px rgba(0, 51, 153, 0.2);
+}
+
+.mensaje-estado, .tabla-vacia {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-style: italic;
+  font-weight: 600;
+}

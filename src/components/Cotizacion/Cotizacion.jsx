@@ -34,7 +34,15 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
   const [items, setItems] = useState([]); 
   const [guardando, setGuardando] = useState(false);
   
+  // Campo de observaciones
+  const [observaciones, setObservaciones] = useState('');
+
+  // Estado para el modal final
   const [cotizacionGuardada, setCotizacionGuardada] = useState(null); 
+  const [nuevoEstadoSeleccionado, setNuevoEstadoSeleccionado] = useState('Aprobada');
+  
+  // Estado para el check visual de "Guardado"
+  const [estadoGuardado, setEstadoGuardado] = useState(false);
 
   // Fecha extraída automáticamente del dispositivo
   const [fechaActual] = useState(
@@ -166,6 +174,7 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
     setClienteSeleccionado(null);
     setMotoSeleccionada(null);
     setModalClienteOpen(true);
+    setObservaciones('');
   };
 
   const handleIrAReparacion = () => {
@@ -220,7 +229,6 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
   const montoTotal = items.reduce((acc, item) => acc + calcularSubtotal(item), 0);
 
   const handleGuardarCotizacion = () => {
-    // CORRECCIÓN: Se usa trabajador.id_trabajador en lugar de id_Usuarios
     if (!clienteSeleccionado || items.length === 0 || !trabajador?.id_trabajador) return;
 
     setGuardando(true);
@@ -231,7 +239,7 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
         id_Cliente: clienteSeleccionado.id_Cliente,
         id_trabajador: trabajador.id_trabajador,
         id_Moto: motoSeleccionada?.id_Motocicleta || null,
-        Observaciones: '',
+        Observaciones: observaciones, 
         items: items.map((i) => ({
           Codigo_Repuesto: i.Codigo_Repuesto,
           Cantidad: i.Cantidad,
@@ -255,10 +263,47 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
       .finally(() => setGuardando(false));
   };
 
+  // Cambiar el estado con check visual y redirección automática
+  const handleCambiarEstado = () => {
+    if (!cotizacionGuardada) return;
+    setEstadoGuardado(true);
+
+    fetch(`${API_BASE}/cotizaciones/${cotizacionGuardada.id_Cotizacion}/estado`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nuevoEstado: nuevoEstadoSeleccionado })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTimeout(() => {
+            if (onVolver) onVolver(); else navigate(-1);
+          }, 1500);
+        } else {
+          setEstadoGuardado(false);
+          alert('No se pudo guardar el estado');
+        }
+      })
+      .catch((err) => {
+        setEstadoGuardado(false);
+        console.error('Error al cambiar estado:', err);
+      });
+  };
+
   const handleNuevaCotizacion = () => {
     setItems([]);
     setCotizacionGuardada(null);
+    setEstadoGuardado(false);
     reiniciarProceso();
+  };
+
+  // Lógica para calcular la deuda si aplica
+  const calcularDeuda = () => {
+    if (!cotizacionGuardada) return 0;
+    if (nuevoEstadoSeleccionado === 'Con Reparación - Pendiente') {
+      return cotizacionGuardada.Monto_Total / 2;
+    }
+    return 0;
   };
 
   return (
@@ -285,16 +330,18 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
           <h2>📋 Resumen de Cotización Registrar</h2>
           
           <div className="header-acciones">
+            {/* BOTÓN ROJO ESTILO TALLER */}
             <button 
-              className="btn-cancelar-volver" 
+              className="btn-volver-rojo" 
               onClick={() => (onVolver ? onVolver() : navigate(-1))}
             >
-              ⬅️ Cancelar / Volver al Inicio
+              ⬅ VOLVER AL INICIO
             </button>
 
+            {/* NUEVO BOTÓN AMARILLO ESTILO TALLER */}
             {clienteSeleccionado && (
-              <button className="btn-reintentar" onClick={reiniciarProceso}>
-                🔄 Cambiar cliente / moto
+              <button className="btn-cambiar-amarillo" onClick={reiniciarProceso}>
+                🔄 CAMBIAR CLIENTE / MOTO
               </button>
             )}
           </div>
@@ -430,6 +477,17 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
               <strong>Bs {montoTotal.toFixed(2)}</strong>
             </div>
           )}
+
+          <div style={{ marginTop: '15px' }}>
+            <span className="dato-label">Observaciones (Mecánico / Cliente):</span>
+            <textarea
+              className="proforma-input"
+              style={{ width: '100%', height: '60px', resize: 'vertical' }}
+              placeholder="Ej: El cliente trajo sus propios repuestos..."
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+            />
+          </div>
 
           <button
             className="btn-guardar-cotizacion"
@@ -574,38 +632,11 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
               <form onSubmit={handleGuardarNuevaMoto} className="nueva-moto-form">
                 <h3>Registrar Nueva Motocicleta</h3>
                 <div className="form-grid">
-                  <input
-                    required
-                    type="text"
-                    placeholder="Placa (Ej. 1234-ABC)"
-                    value={nuevaMoto.Placa}
-                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Placa: e.target.value })}
-                  />
-                  <input
-                    required
-                    type="text"
-                    placeholder="Marca (Ej. Honda)"
-                    value={nuevaMoto.Marca}
-                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Marca: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Modelo (Ej. Wave 110)"
-                    value={nuevaMoto.Modelo}
-                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Modelo: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Color (Ej. Rojo)"
-                    value={nuevaMoto.Color}
-                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Color: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Kilometraje Actual"
-                    value={nuevaMoto.Kilometraje_Actual}
-                    onChange={(e) => setNuevaMoto({ ...nuevaMoto, Kilometraje_Actual: e.target.value })}
-                  />
+                  <input required type="text" placeholder="Placa (Ej. 1234-ABC)" value={nuevaMoto.Placa} onChange={(e) => setNuevaMoto({ ...nuevaMoto, Placa: e.target.value })} />
+                  <input required type="text" placeholder="Marca (Ej. Honda)" value={nuevaMoto.Marca} onChange={(e) => setNuevaMoto({ ...nuevaMoto, Marca: e.target.value })} />
+                  <input type="text" placeholder="Modelo (Ej. Wave 110)" value={nuevaMoto.Modelo} onChange={(e) => setNuevaMoto({ ...nuevaMoto, Modelo: e.target.value })} />
+                  <input type="text" placeholder="Color (Ej. Rojo)" value={nuevaMoto.Color} onChange={(e) => setNuevaMoto({ ...nuevaMoto, Color: e.target.value })} />
+                  <input type="number" placeholder="Kilometraje Actual" value={nuevaMoto.Kilometraje_Actual} onChange={(e) => setNuevaMoto({ ...nuevaMoto, Kilometraje_Actual: e.target.value })} />
                 </div>
 
                 <div className="form-actions">
@@ -620,7 +651,7 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
 
       {cotizacionGuardada && (
         <div className="modal-backdrop">
-          <div className="confirm-modal">
+          <div className="confirm-modal" style={{ maxWidth: '500px' }}>
             <span className="modal-icon-bike">✅</span>
             <h3>Cotización N° {cotizacionGuardada.id_Cotizacion} guardada</h3>
             <p>Total de la proforma:</p>
@@ -628,7 +659,30 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
               Bs {Number(cotizacionGuardada.Monto_Total).toFixed(2)}
             </p>
             
+            <div style={{ marginTop: '20px', textAlign: 'left' }}>
+              <label className="dato-label">Seleccionar nuevo estado de la cotización:</label>
+              <select 
+                className="proforma-input" 
+                style={{ width: '100%', padding: '10px', marginTop: '5px' }}
+                value={nuevoEstadoSeleccionado}
+                onChange={(e) => setNuevoEstadoSeleccionado(e.target.value)}
+                disabled={estadoGuardado}
+              >
+                <option value="Aprobada">Aprobada (Pagó todo)</option>
+                <option value="Denegada">Denegada (Cliente rechazó)</option>
+                <option value="Con Reparación - Pendiente">Con Reparación - Pendiente (Pagó mitad)</option>
+                <option value="Con Reparación - Total">Con Reparación - Total (Pagó todo)</option>
+              </select>
+            </div>
+
+            {calcularDeuda() > 0 && (
+              <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#fef3c7', borderRadius: '8px', color: '#92400e', fontWeight: 'bold' }}>
+                ⚠️ Saldo pendiente a cobrar al recoger: Bs {calcularDeuda().toFixed(2)}
+              </div>
+            )}
+
             <div className="confirm-buttons" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              
               <a 
                 href={`http://localhost:3000/api/cotizaciones/${cotizacionGuardada.id_Cotizacion}/pdf`} 
                 target="_blank" 
@@ -636,26 +690,46 @@ export default function Cotizacion({ usuarioLogueado, onVolver }) {
                 style={{ width: '100%', textDecoration: 'none' }}
               >
                 <button className="btn-confirm-yes" style={{ width: '100%', backgroundColor: '#3b82f6', color: '#fff', padding: '12px' }}>
-                  📥 Descargar Cotización en PDF
+                  📥 Descargar PDF
                 </button>
               </a>
 
-              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                <button 
-                  className="btn-confirm-no" 
-                  onClick={handleNuevaCotizacion}
-                  style={{ flex: 1, padding: '12px' }}
-                >
-                  ➕ Nueva Cotización
-                </button>
-                <button
-                  className="btn-confirm-no"
-                  onClick={() => (onVolver ? onVolver() : navigate(-1))}
-                  style={{ flex: 1, padding: '12px' }}
-                >
-                  Volver al Menú
-                </button>
-              </div>
+              <button 
+                className="btn-confirm-yes" 
+                style={{ 
+                  backgroundColor: estadoGuardado ? '#16a34a' : '#22c55e', 
+                  color: '#fff', 
+                  padding: '12px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+                onClick={handleCambiarEstado}
+                disabled={estadoGuardado}
+              >
+                {estadoGuardado ? (
+                  <>✅ Guardado con éxito</>
+                ) : (
+                  <>💾 Guardar Estado</>
+                )}
+              </button>
+
+              <button 
+                className="btn-confirm-no" 
+                style={{ 
+                  width: '100%', 
+                  padding: '12px', 
+                  backgroundColor: '#475569', 
+                  color: '#f8fafc', 
+                  fontWeight: 'bold',
+                  marginTop: '5px'
+                }}
+                onClick={() => (onVolver ? onVolver() : navigate('/admin'))}
+              >
+                ❌ Cancelar y Volver al Inicio
+              </button>
 
             </div>
           </div>

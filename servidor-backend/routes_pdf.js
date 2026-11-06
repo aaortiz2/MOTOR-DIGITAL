@@ -16,6 +16,7 @@ function registrarRutasPDF(app, pool) {
           c."fecha_Validez", 
           c."Monto_Total",
           c."Observaciones",
+          c."estado_Cotizacion",
           cl."Nombre" AS "ClienteNombre", 
           cl."Apellido" AS "ClienteApellido", 
           cl."Celular" AS "ClienteCelular",
@@ -73,12 +74,17 @@ function registrarRutasPDF(app, pool) {
       doc.fontSize(10).font('Helvetica').fillColor('#334155');
       doc.text(`Fecha de Emisión: ${new Date(cot.fecha_Cotizacion).toLocaleDateString('es-BO')}`);
       doc.text(`Válida hasta: ${new Date(cot.fecha_Validez).toLocaleDateString('es-BO')}`);
+      
+      // Mostramos el estado actual
+      doc.font('Helvetica-Bold').text(`Estado Actual: `, { continued: true });
+      doc.font('Helvetica').text(`${cot.estado_Cotizacion}`);
+      
       doc.moveDown(1.5);
 
       doc.fontSize(12).font('Helvetica-Bold').fillColor('#1e293b').text('INFORMACIÓN DEL CLIENTE');
       doc.fontSize(10).font('Helvetica').fillColor('#334155');
       doc.text(`Nombre: ${cot.ClienteNombre} ${cot.ClienteApellido}`);
-      doc.text(`Celular: ${cot.ClienteCelular}`);
+      
       if (cot.Placa) {
         doc.text(`Moto: ${cot.MotoMarca} ${cot.MotoModelo} - Placa: ${cot.Placa} (Color: ${cot.MotoColor})`);
       } else {
@@ -131,8 +137,26 @@ function registrarRutasPDF(app, pool) {
       const totalY = doc.y;
       doc.fontSize(14).font('Helvetica-Bold').fillColor('#0f172a');
       doc.text(`TOTAL A PAGAR:  Bs ${Number(cot.Monto_Total).toFixed(2)}`, 300, totalY, { align: 'right', width: 255 });
+      
+      // MEJORA: Bloque contable uniforme para el saldo pendiente
+      if (cot.estado_Cotizacion === 'Con Reparación - Pendiente' || cot.estado_Cotizacion === 'Pendiente') {
+        const deuda = cot.Monto_Total / 2;
+        
+        doc.moveDown(1.5);
+        
+        // Línea divisoria sutil
+        doc.moveTo(300, doc.y).lineTo(555, doc.y).lineWidth(1).strokeColor('#cbd5e1').stroke();
+        doc.moveDown(1);
 
-      doc.moveDown(3);
+        // Texto con el mismo color de letra del resto del PDF
+        doc.fontSize(12).font('Helvetica-Bold').fillColor('#0f172a');
+        doc.text(`SALDO PENDIENTE:`, 300, doc.y, { align: 'right', width: 255 });
+        
+        doc.fontSize(14).font('Helvetica-Bold').fillColor('#ef4444'); // Solo el monto en rojo para denotar deuda
+        doc.text(`Bs ${deuda.toFixed(2)}`, 300, doc.y + 5, { align: 'right', width: 255 });
+        
+        doc.moveDown(2);
+      }
 
       if (cot.Observaciones && cot.Observaciones.trim() !== '') {
         doc.fontSize(10).font('Helvetica-Bold').fillColor('#1e293b').text('OBSERVACIONES:');

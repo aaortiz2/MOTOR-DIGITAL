@@ -134,6 +134,101 @@ function registrarRutasCotizaciones(app, pool) {
   });
 
   // ---------------------------------------------------------------------
+  // PATCH /api/cotizaciones/:id/estado
+  // Cambia el estado de una cotización (Aprobada, Denegada, etc.)
+  // CORRECCIÓN: Solo descuenta el stock si el estado anterior NO era de aprobación.
+  // ---------------------------------------------------------------------
+  app.patch('/api/cotizaciones/:id/estado', async (req, res) => {
+    const { id } = req.params;
+    const { nuevoEstado } = req.body;
+
+    if (!nuevoEstado) {
+      return res.status(400).json({ success: false, message: 'El nuevo estado es obligatorio.' });
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 1. Obtenemos el estado actual antes de cambiarlo
+      const currentResult = await client.query(`SELECT "estado_Cotizacion" FROM public."Cotización" WHERE "id_Cotizacion" = $1`, [id]);
+      if (currentResult.rows.length === 0) throw new Error('Cotización no encontrada.');
+      
+      const estadoAnterior = currentResult.rows[0].estado_Cotizacion;
+
+      // 2. Actualizamos el estado
+      const updateQuery = `
+        UPDATE public."Cotización"
+        SET "estado_Cotizacion" = $1
+        WHERE "id_Cotizacion" = $2
+        RETURNING *;
+      `;
+      const result = await client.query(updateQuery, [nuevoEstado, id]);
+
+      // 3. Lógica del Stock: Solo descontamos si ANTES no estaba aprobada y AHORA sí lo está
+      const estadosAprobados = ['Aprobada', 'Con Reparación - Pendiente', 'Con Reparación - Total'];
+      
+      const seDebeDescontarStock = estadosAprobados.includes(nuevoEstado) && !estadosAprobados.includes(estadoAnterior);
+      
+      if (seDebeDescontarStock) {
+        const detallesQuery = `SELECT "Codigo_Repuesto", "Cantidad" FROM public."Detalle_Cotizacion" WHERE "id_Cotizacion" = $1`;
+        const detalles = await client.query(detallesQuery, [id]);
+
+        for (const item of detalles.rows) {
+          await client.query(
+            `UPDATE public."Repuesto" 
+             SET "Stock_Actual" = "Stock_Actual" - $1 
+             WHERE "Codigo_Repuesto" = $2`,
+            [item.Cantidad, item.Codigo_Repuesto]
+          );
+        }
+        console.log(`Stock descontado para la cotización #${id} (Cambio a: ${nuevoEstado})`);
+      }
+
+      await client.query('COMMIT');
+      res.json({ success: true, message: `Estado actualizado a: ${nuevoEstado}`, cotizacion: result.rows[0] });
+
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('Error al cambiar estado:', err);
+      res.status(500).json({ success: false, message: 'No se pudo actualizar el estado.' });
+    } finally {
+      client.release();
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // GET /api/cotizaciones
+  // Obtiene la lista completa de cotizaciones para el panel de administración
+  // ---------------------------------------------------------------------
+  app.get('/api/cotizaciones', async (req, res) => {
+    try {
+      const query = `
+        SELECT 
+          c."id_Cotizacion",
+          c."fecha_Cotizacion",
+          c."fecha_Validez",
+          c."estado_Cotizacion",
+          c."Monto_Total",
+          cl."Nombre" AS "ClienteNombre",
+          cl."Apellido" AS "ClienteApellido",
+          m."Placa",
+          m."Marca" AS "MotoMarca",
+          m."Modelo" AS "MotoModelo"
+        FROM public."Cotización" c
+        JOIN public."Cliente" cl ON c."id_Cliente" = cl."id_Cliente"
+        LEFT JOIN public."Motocicleta" m ON c."id_Moto" = m."id_Motocicleta"
+        ORDER BY c."id_Cotizacion" ASC
+      `;
+      const result = await pool.query(query);
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error al obtener cotizaciones:', err);
+      res.status(500).json({ success: false, message: 'Error al obtener la lista de cotizaciones.' });
+    }
+  });
+
+  // ---------------------------------------------------------------------
   // GET /api/cotizaciones/total
   // Suma el Monto_Total de todas las cotizaciones (o filtradas por estado).
   // Útil para un panel de "cuánto se ha cotizado en total".

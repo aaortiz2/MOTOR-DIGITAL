@@ -1,0 +1,255 @@
+/* ==========================================
+   ESTILOS: CONTROL DE CLIENTES
+   ========================================== */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0f172a;
+}
+
+.clientes-screen {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #0f172a;
+  background-image: linear-gradient(
+      to bottom,
+      rgba(15, 23, 42, 0.88),
+      rgba(15, 23, 42, 0.96)
+    ),
+    url('/fondo_tvs.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #f8fafc;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+.clientes-container {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* BANNER DE ESTADÍSTICA: CLIENTE FRECUENTE */
+.stats-banner {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  border: 1px solid #fbbf24;
+  border-radius: 16px;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(251, 191, 36, 0.15);
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.stats-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stats-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.stats-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.stats-badge-puntos {
+  background-color: rgba(251, 191, 36, 0.15);
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* TARJETA PRINCIPAL */
+.clientes-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+}
+
+.clientes-header h1 {
+  color: #fbbf24;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 5px 0;
+}
+
+.clientes-header p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+}
+
+/* BUSCADOR INTERACTIVO */
+.buscador-container {
+  display: flex;
+  align-items: center;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 25px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.buscador-container:focus-within {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+}
+
+.buscador-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+/* LISTA DE CLIENTES */
+.lista-clientes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.cliente-item-bruto {
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+
+.cliente-item-bruto:hover {
+  border-color: #475569;
+}
+
+.cliente-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 10px;
+}
+
+.cliente-id-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.cliente-puntos-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* REJILLA DINÁMICA DE CAMPOS DE LA BASE DE DATOS */
+.cliente-grid-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.cliente-celda {
+  background-color: rgba(30, 41, 59, 0.5);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.celda-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.celda-valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.sin-datos {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 30px;
+}
+
+/* BOTÓN VOLVER */
+.btn-volver-panel {
+  width: 100%;
+  padding: 13px;
+  background-color: #334155;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 20px;
+}
+
+.btn-volver-panel:hover {
+  background-color: #475569;
+}

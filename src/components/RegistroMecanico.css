@@ -1,116 +1,168 @@
+/* ==========================================
+   PANTALLA COMPLETA Y ESTÉTICA TALLER TVS
+   ========================================== */
+
+/* Reseteo global para eliminar márgenes blancos del navegador */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #0f172a;
+}
+
+/* Contenedor principal que abarca toda la ventana */
 .registro-container {
   min-height: 100vh;
-  width: 100%;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
+  background-color: #0f172a;
+  background-image: linear-gradient(
       to bottom,
-      rgba(255, 204, 0, 0.8),
-      rgba(255, 204, 0, 0.95)
+      rgba(15, 23, 42, 0.88),
+      rgba(15, 23, 42, 0.96)
     ),
-    url('/fondo-tvs.jpg');
+    url('/fondo_tvs.jpg');
   background-size: cover;
   background-position: center;
-  font-family: 'Arial', sans-serif;
+  background-repeat: no-repeat;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #f8fafc;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-/* Tarjeta principal */
+/* Tarjeta principal del formulario (ampliada para mejor comodidad visual) */
 .registro-card {
-  background-color: rgba(30, 30, 30, 0.95);
+  background-color: #1e293b;
+  border: 1px solid #334155;
   padding: 40px;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 500px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  color: white;
+  max-width: 580px; /* Puedes ajustarlo si la quieres más ancha o más compacta */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+  color: #f8fafc;
+  box-sizing: border-box;
 }
 
+/* Encabezado de la marca */
 .registro-card .brand-header {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .registro-card .brand-header h1 {
-  color: #002366;
+  color: #fbbf24;
   font-size: 2.2rem;
-  font-weight: bold;
-  font-style: italic;
-  margin-bottom: 25px;
-  background-color: white;
-  padding: 10px;
-  border-radius: 8px;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  border: 1px solid #334155;
+  padding: 12px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
 }
 
 .registro-card .brand-header span {
-  color: #E3000F;
+  color: #f87171;
 }
 
+/* Título secundario */
 .registro-title {
   text-align: center;
   margin-bottom: 25px;
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   letter-spacing: 1px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
-/* Estilos de los campos del formulario */
+/* Agrupación de campos en bloque */
 .registro-input-group {
-  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  width: 100%;
 }
 
 .registro-input-group label {
   display: block;
   margin-bottom: 6px;
-  font-size: 0.9rem;
-  color: #ccc;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
-.registro-input-group input {
+/* Campos de entrada (Inputs y Selects) */
+.registro-input-group input,
+.registro-input-group select {
   width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 12px 14px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #f8fafc;
   box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.registro-input-group input:focus,
+.registro-input-group select:focus {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
 }
 
 .registro-input-group input[type="file"] {
-  background-color: white;
-  color: #333;
+  background-color: #0f172a;
+  color: #94a3b8;
   cursor: pointer;
+  padding: 10px;
 }
 
 /* Botón principal de registro */
 .btn-registro {
   width: 100%;
   padding: 14px;
-  background-color: #002366;
-  color: white;
+  background-color: #fbbf24;
+  color: #0f172a;
   border: none;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 800;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 15px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-registro:hover {
-  background-color: #001540;
+  background-color: #f59e0b;
+  transform: translateY(-1px);
 }
 
 /* Botón para regresar al inicio */
 .btn-volver {
   width: 100%;
   padding: 12px;
-  margin-top: 12px;
-  background-color: transparent;
-  color: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: bold;
+  margin-top: 10px;
+  background-color: #334155;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .btn-volver:hover {
-  background-color: #333;
+  background-color: #475569;
 }

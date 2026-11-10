@@ -29,6 +29,25 @@ export default function RegistroMecanico({ onVolver }) {
           </div>
 
           <div className="registro-input-group">
+            <label>Nombre de usuario</label>
+            <input type="text" placeholder="Ingrese el nombre de usuario" />
+          </div>
+
+          <div className="registro-input-group">
+            <label>Contraseña</label>
+            <input type="password" placeholder="Ingrese la contraseña" />
+          </div>
+
+          <div className="registro-input-group">
+            <label>Rol</label>
+            <select defaultValue="">
+              <option value="" disabled>Seleccione un rol</option>
+              <option value="Mecánico">Mecánico</option>
+              <option value="Ayudante">Ayudante</option>
+            </select>
+          </div>
+
+          <div className="registro-input-group">
             <label>Celular</label>
             <input type="text" placeholder="Ingrese el número de celular" />
           </div>

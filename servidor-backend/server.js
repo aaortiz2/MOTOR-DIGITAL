@@ -43,7 +43,7 @@ app.post('/api/login', async (req, res) => {
 
     if (result.rows.length > 0) {
       const usuarioEncontrado = result.rows[0];
-      
+
       res.json({
         success: true,
         rol: usuarioEncontrado.rol,
@@ -64,7 +64,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // 2. Endpoint: Buscar Trabajador por usuario de sesión
-app.get('/api/trabajador/:nombreUsuario', async (req, res) => {
+app.get('/api/Trabajador/:nombreUsuario', async (req, res) => {
   const { nombreUsuario } = req.params;
   try {
     const query = `
@@ -186,9 +186,9 @@ app.patch('/api/reparaciones/:id/asignar', async (req, res) => {
       RETURNING *;
     `;
     const result = await pool.query(query, [id_Mecanico || null, id]);
-    
+
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'No encontrada' });
-    
+
     res.json({ success: true, message: 'Mecánico asignado.', reparacion: result.rows[0] });
   } catch (err) {
     console.error(err);
@@ -232,6 +232,284 @@ app.get('/api/mecanicos', async (req, res) => {
   }
 });
 
+// =====================================================================
+// ENDPOINTS PARA GESTIÓN DE TRABAJADORES (Mecánicos y Ayudantes)
+// =====================================================================
+
+// 10. Obtener todos los trabajadores para el buscador
+app.get('/api/trabajadores', async (req, res) => {
+  try {
+    const query = `
+      SELECT id_trabajador, nombre, apellido, "Rol" AS rol, "Nombre_Usuario" AS usuario 
+      FROM public."Trabajador" 
+      ORDER BY id_trabajador DESC
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al obtener trabajadores:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
+
+// 11. Eliminar un trabajador (Mecánico o Ayudante) por su ID
+app.delete('/api/trabajadores/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      DELETE FROM public."Trabajador" 
+      WHERE id_trabajador = $1 
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Trabajador no encontrado' });
+    }
+
+    res.json({ success: true, message: 'Trabajador eliminado correctamente', trabajador: result.rows[0] });
+  } catch (err) {
+    console.error('Error al eliminar trabajador:', err);
+    res.status(500).json({ success: false, message: 'Error al eliminar en la base de datos' });
+  }
+});
+
+// =====================================================================
+// ENDPOINT: CONTROL DE PAGOS A MECÁNICOS
+// =====================================================================
+app.get('/api/control-pagos', async (req, res) => {
+  try {
+    // Consultamos todos los trabajadores
+    const trabajadoresQuery = `
+      SELECT id_trabajador, nombre, apellido, "Rol" AS rol 
+      FROM public."Trabajador"
+      ORDER BY id_trabajador ASC
+    `;
+    const trabajadoresResult = await pool.query(trabajadoresQuery);
+
+    // Consultamos todas las reparaciones
+    const reparacionesQuery = `
+      SELECT "id_Reparacion", "id_Mecanico", "Fecha_Ingreso", "Fecha_Salida", "Estado_Reparacion", "Descripcion_Trabajo" 
+      FROM public."Reparacion"
+    `;
+    const reparacionesResult = await pool.query(reparacionesQuery);
+
+    // Unimos los datos en Node.js para asegurar máxima compatibilidad
+    const controlPagos = trabajadoresResult.rows.map(trabajador => {
+      const reparacionesMecanico = reparacionesResult.rows.filter(
+        r => r.id_Mecanico === trabajador.id_trabajador
+      );
+
+      return {
+        ...trabajador,
+        reparaciones: reparacionesMecanico
+      };
+    });
+
+    res.json({ success: true, data: controlPagos });
+  } catch (err) {
+    console.error('Error al obtener el control de pagos:', err);
+    res.status(500).json({ success: false, message: 'Error interno en el servidor' });
+  }
+});
+// =====================================================================
+// ENDPOINT: OBTENER TODOS LOS DATOS DE LA TABLA REPARACIÓN
+// =====================================================================
+app.get('/api/reparaciones-completa', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        r."id_Reparacion", 
+        r."id_Cotizacion", 
+        r."id_Moto", 
+        r."id_Mecanico", 
+        r."Fecha_Ingreso", 
+        r."Fecha_Salida", 
+        r."Descripcion_Trabajo",
+        m."Placa" AS "MotoPlaca",
+        m."Marca" AS "MotoMarca",
+        m."Modelo" AS "MotoModelo",
+        c."Nombre" AS "ClienteNombre",
+        c."Apellido" AS "ClienteApellido",
+        t.nombre AS "MecanicoNombre",
+        t.apellido AS "MecanicoApellido"
+      FROM public."Reparacion" r
+      LEFT JOIN public."Motocicleta" m ON r."id_Moto" = m."id_Motocicleta"
+      LEFT JOIN public."Cliente" c ON m."id_Cliente" = c."id_Cliente"
+      LEFT JOIN public."Trabajador" t ON r."id_Mecanico" = t.id_trabajador
+      ORDER BY r."id_Reparacion" ASC
+    `;
+    const result = await pool.query(query);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error('Error al obtener la tabla reparación:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
+
+// =====================================================================
+// ENDPOINT: OBTENER TODOS LOS DATOS DE LA TABLA COTIZACIÓN
+// =====================================================================
+app.get('/api/cotizaciones-completa', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        c.*,
+        cli."Nombre" AS "ClienteNombre",
+        cli."Apellido" AS "ClienteApellido",
+        cli."Celular" AS "ClienteCelular"
+      FROM public."Cotización" c
+      LEFT JOIN public."Cliente" cli ON c."id_Cliente" = cli."id_Cliente"
+      ORDER BY c."id_Cotizacion" DESC
+    `;
+    const result = await pool.query(query);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error('Error al obtener la tabla cotización:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
+// =====================================================================
+// ENDPOINT: OBTENER TODOS LOS DATOS DE LA TABLA REPUESTO
+// =====================================================================
+app.get('/api/repuestos', async (req, res) => {
+  try {
+    const query = `
+      SELECT * 
+      FROM public."Repuesto" 
+      ORDER BY "Codigo_Repuesto" ASC
+    `;
+    const result = await pool.query(query);
+    res.json({ success: true, data: result.rows });
+  } catch (err) {
+    console.error('Error al obtener los repuestos:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
+// =====================================================================
+// ENDPOINT: REGISTRAR NUEVO REPUESTO EN LA BASE DE DATOS
+// =====================================================================
+app.post('/api/repuestos', async (req, res) => {
+  const { Nombre, Marca, Descripcion, Unidad_Medida, Precio_Unitario, Stock_Actual } = req.body;
+  
+  try {
+    const query = `
+      INSERT INTO public."Repuesto" 
+      ("Nombre", "Marca", "Descripcion", "Unidad_Medida", "Precio_Unitario", "Stock_Actual") 
+      VALUES ($1, $2, $3, $4, $5, $6) 
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [
+      Nombre,
+      Marca || 'Genérico',
+      Descripcion || '',
+      Unidad_Medida || 'Unidad',
+      Precio_Unitario || 0,
+      Stock_Actual || 0
+    ]);
+
+    res.json({ 
+      success: true, 
+      message: 'Repuesto registrado exitosamente', 
+      repuesto: result.rows[0] 
+    });
+  } catch (err) {
+    console.error('Error al registrar repuesto:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor al registrar el repuesto' });
+  }
+});
+// =====================================================================
+// ENDPOINT: CONTROL DE CLIENTES Y CÁLCULO DE CLIENTE FRECUENTE
+// =====================================================================
+app.get('/api/control-clientes', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        c.*,
+        COUNT(cot."id_Cotizacion") AS total_cotizaciones
+      FROM public."Cliente" c
+      LEFT JOIN public."Cotización" cot ON c."id_Cliente" = cot."id_Cliente"
+      GROUP BY c."id_Cliente"
+      ORDER BY c."id_Cliente" ASC
+    `;
+    const result = await pool.query(query);
+    
+    // Procesamos para calcular los puntos (1 punto por cada 3 cotizaciones)
+    const clientesConPuntos = result.rows.map(cliente => {
+      const totalCot = parseInt(cliente.total_cotizaciones) || 0;
+      const puntosFrecuente = Math.floor(totalCot / 3);
+      return {
+        ...cliente,
+        total_cotizaciones: totalCot,
+        puntos_frecuente: puntosFrecuente
+      };
+    });
+
+    // Encontramos al cliente con más cotizaciones para destacarlo arriba
+    let clienteFrecuente = null;
+    if (clientesConPuntos.length > 0) {
+      clienteFrecuente = clientesConPuntos.reduce((prev, current) => 
+        (current.total_cotizaciones > prev.total_cotizaciones) ? current : prev
+      );
+    }
+
+    res.json({ 
+      success: true, 
+      clientes: clientesConPuntos,
+      clienteFrecuente: clienteFrecuente && clienteFrecuente.total_cotizaciones > 0 ? clienteFrecuente : null
+    });
+  } catch (err) {
+    console.error('Error al obtener control de clientes:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
+// =====================================================================
+// ENDPOINT: OBTENER REPARACIONES PENDIENTES DEL MECÁNICO LOGUEADO
+// =====================================================================
+app.get('/api/reparaciones/mis-pendientes/:nombreUsuario', async (req, res) => {
+  const { nombreUsuario } = req.params;
+  try {
+    // 1. Encontramos el ID del trabajador según su nombre de usuario
+    const trabajadorQuery = `
+      SELECT id_trabajador FROM public."Trabajador" WHERE "Nombre_Usuario" = $1
+    `;
+    const trabajadorRes = await pool.query(trabajadorQuery, [nombreUsuario]);
+    
+    if (trabajadorRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Trabajador no encontrado' });
+    }
+    const idMecanico = trabajadorRes.rows[0].id_trabajador;
+
+    // 2. Consultamos solo las reparaciones pendientes (Fecha_Salida IS NULL) de este mecánico
+    const query = `
+      SELECT 
+        r."id_Reparacion", 
+        r."id_Cotizacion", 
+        r."id_Moto", 
+        r."Fecha_Ingreso", 
+        r."Fecha_Salida", 
+        r."Descripcion_Trabajo",
+        m."Placa" AS "MotoPlaca",
+        m."Marca" AS "MotoMarca",
+        m."Modelo" AS "MotoModelo",
+        m."Color" AS "MotoColor",
+        m."Kilometraje_Actual" AS "MotoKilometraje",
+        c."Nombre" AS "ClienteNombre",
+        c."Apellido" AS "ClienteApellido",
+        c."Celular" AS "ClienteCelular"
+      FROM public."Reparacion" r
+      JOIN public."Motocicleta" m ON r."id_Moto" = m."id_Motocicleta"
+      JOIN public."Cliente" c ON m."id_Cliente" = c."id_Cliente"
+      WHERE r."id_Mecanico" = $1 AND r."Fecha_Salida" IS NULL
+      ORDER BY r."id_Reparacion" DESC
+    `;
+    const result = await pool.query(query, [idMecanico]);
+    res.json({ success: true, reparaciones: result.rows });
+  } catch (err) {
+    console.error('Error al obtener reparaciones pendientes del mecánico:', err);
+    res.status(500).json({ success: false, message: 'Error en el servidor' });
+  }
+});
 // =====================================================================
 // ENCENDIDO DEL SERVIDOR
 // =====================================================================
